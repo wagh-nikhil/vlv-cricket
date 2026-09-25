@@ -1,0 +1,50 @@
+/* Custom styles for cricket dashboard */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.tab-btn {
+  transition: all 0.2s ease-in-out;
+}
+
+.active-tab {
+  color: #60a5fa !important;
+  border-color: #3b82f6 !important;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+.pulse-red {
+  animation: pulse-glow 2s infinite;
+}

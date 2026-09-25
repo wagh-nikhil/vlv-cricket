@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRISM Live Cricket Overlay - VLV 2026</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Roboto Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;0,800;1,700&family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: transparent !important;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    .font-chakra {
+      font-family: 'Chakra Petch', sans-serif;
+    }
+    .font-mono-score {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Glassmorphism TV Broadcast Bar */
+    .tv-glass {
+      background: linear-gradient(135deg, rgba(10, 15, 30, 0.94) 0%, rgba(15, 23, 42, 0.90) 100%);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.12);
+    }
+
+    .tv-score-box {
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    /* Celebration Banner Animation */
+    @keyframes alertIn {
+      0% { transform: translateY(120%) scale(0.85); opacity: 0; }
+      15% { transform: translateY(0) scale(1.05); opacity: 1; }
+      25% { transform: translateY(0) scale(1); opacity: 1; }
+      85% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-120%) scale(0.9); opacity: 0; }
+    }
+    .animate-celebrate {
+      animation: alertIn 3.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Live pulse animation */
+    @keyframes pulse-red {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.9); }
+    }
+    .pulse-live {
+      animation: pulse-red 1.4s infinite ease-in-out;
+    }
+
+    /* Marquee ticker animation if needed */
+    @keyframes tickerScroll {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+  </style>
+</head>
+<body class="relative flex flex-col justify-end p-4 sm:p-6 pb-16 sm:pb-20 select-none">
+
+  <!-- ======================================================== -->
+  <!-- POPUP CELEBRATION OVERLAY (Boundaries & Wickets)          -->
+  <!-- ======================================================== -->
+  <div id="celebration-container" class="fixed top-12 left-1/2 -translate-x-1/2 pointer-events-none z-50 hidden">
+    <div id="celebration-card" class="px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border text-white font-black text-2xl sm:text-3xl tracking-wider uppercase font-chakra">
+      <span id="celebration-icon" class="text-4xl">🏏</span>
+      <span id="celebration-text">FOUR!</span>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MAIN LOWER THIRD TICKER CONTAINER                        -->
+  <!-- ======================================================== -->
+  <div id="ticker-wrapper" class="w-full max-w-7xl mx-auto transition-all duration-300">
+
+    <!-- TOP ACCENT STRIP: Tournament Name & Target Equation -->
+    <div class="flex items-center justify-between px-4 py-1.5 rounded-t-xl bg-slate-950/90 border-t border-x border-slate-700/60 text-xs shadow-md">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-red-500 pulse-live shadow-[0_0_8px_#ef4444]"></span>
+        <span class="font-extrabold text-[11px] tracking-wider text-red-400 uppercase">LIVE</span>
+        <span class="text-slate-600">|</span>
+        <span id="tourney-title" class="font-bold text-slate-200 tracking-wide uppercase truncate max-w-xs sm:max-w-md">
+          {{ tournament_name or "VLV GANAPATI MEN'S CRICKET TOURNAMENT 2026" }}
+        </span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div id="equation-ticker" class="font-extrabold text-amber-400 tracking-wide flex items-center gap-1.5">
+          <span>⚡</span>
+          <span id="equation-text">{{ current_match.equation or "MATCH IN PROGRESS" }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN TICKER BODY -->
+    <div class="tv-glass rounded-b-xl border border-slate-700/60 p-3 sm:p-4 text-white">
+      <div class="grid grid-cols-12 gap-3 sm:gap-4 items-center">
+
+        <!-- SECTION 1: TEAMS & BIG SCORE (Cols 1-4) -->
+        <div class="col-span-12 md:col-span-4 flex items-center gap-3 border-b md:border-b-0 md:border-r border-slate-800 pb-2 md:pb-0 md:pr-4">
+          <!-- Batting Indicator Pill -->
+          <div class="flex flex-col items-center justify-center px-3 py-2 rounded-xl bg-blue-600/30 border border-blue-500/50 text-blue-300 font-bold text-xs uppercase tracking-tight">
+            <span class="text-[9px] text-blue-400 font-normal">BATTING</span>
+            <span id="batting-team-short" class="text-sm font-black truncate max-w-[85px]">
+              {{ current_match.batting_team or "TEAM A" }}
+            </span>
+          </div>
+
+          <!-- Score Display -->
+          <div class="flex-1">
+            <div class="flex items-baseline gap-2">
+              <span id="score-text" class="text-4xl sm:text-5xl font-black text-amber-400 tracking-tighter font-mono-score drop-shadow-md">
+                {{ current_match.runs if current_match.runs is not none else 0 }}/{{ current_match.wickets if current_match.wickets is not none else 0 }}
+              </span>
+              <span id="overs-text" class="text-base sm:text-xl font-bold text-slate-300">
+                ({{ current_match.overs or "0.0" }}/{{ current_match.overs_limit or 8 }} ov)
+              </span>
+            </div>
+            <div class="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
+              <span>CRR: <b id="crr-text" class="text-slate-200 font-semibold">{{ current_match.crr or "0.00" }}</b></span>
+              <span>•</span>
+              <span>Target: <b id="target-text" class="text-slate-200 font-semibold">{{ current_match.target or "-" }}</b></span>
+              <span>•</span>
+              <span>RRR: <b id="rrr-text" class="text-slate-200 font-semibold">{{ current_match.rrr or "-" }}</b></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: BATTERS AT CREASE (Cols 5-8) -->
+        <div class="col-span-12 sm:col-span-6 md:col-span-4 border-b sm:border-b-0 sm:border-r border-slate-800 pb-2 sm:pb-0 sm:pr-4 space-y-1.5">
+          <!-- Striker -->
+          <div class="flex items-center justify-between text-xs">
+            <div class="flex items-center gap-1.5 truncate">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span id="batter1-name" class="font-bold text-slate-100 truncate max-w-[130px]">
+                {{ current_match.batters[0].name if current_match.batters and current_match.batters|length > 0 else "Batter 1*" }}
+              </span>
+            </div>
+            <div class="text-right">
+              <span id="batter1-runs" class="font-black text-amber-300 font-mono-score">
+                {{ current_match.batters[0].runs if current_match.batters and current_match.batters|length > 0 else 0 }}
+              </span>
+              <span id="batter1-balls" class="text-slate-400 text-[10px]">
+                ({{ current_match.batters[0].balls if current_match.batters and current_match.batters|length > 0 else 0 }})
+              </span>
+            </div>
+          </div>
+
+          <!-- Non-Striker -->
+          <div class="flex items-center justify-between text-xs">
+            <div class="flex items-center gap-1.5 truncate">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
+              <span id="batter2-name" class="font-semibold text-slate-300 truncate max-w-[130px]">
+                {{ current_match.batters[1].name if current_match.batters and current_match.batters|length > 1 else "Batter 2" }}
+              </span>
+            </div>
+            <div class="text-right">
+              <span id="batter2-runs" class="font-black text-slate-200 font-mono-score">
+                {{ current_match.batters[1].runs if current_match.batters and current_match.batters|length > 1 else 0 }}
+              </span>
+              <span id="batter2-balls" class="text-slate-400 text-[10px]">
+                ({{ current_match.batters[1].balls if current_match.batters and current_match.batters|length > 1 else 0 }})
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 3: BOWLER & THIS OVER BALLS (Cols 9-12) -->
+        <div class="col-span-12 sm:col-span-6 md:col-span-4 flex flex-col justify-between space-y-1.5">
+          <!-- Bowler Figures -->
+          <div class="flex items-center justify-between text-xs">
+            <div class="flex items-center gap-1.5 truncate">
+              <span class="text-rose-400 font-bold">🎯</span>
+              <span id="bowler-name" class="font-bold text-slate-100 truncate max-w-[120px]">
+                {{ current_match.bowler.name if current_match.bowler else "Bowler" }}
+              </span>
+            </div>
+            <div class="text-right">
+              <span id="bowler-figures" class="font-extrabold text-rose-400 font-mono-score">
+                {{ current_match.bowler.wickets if current_match.bowler else 0 }}-{{ current_match.bowler.runs if current_match.bowler else 0 }}
+              </span>
+              <span id="bowler-overs" class="text-slate-400 text-[10px]">
+                ({{ current_match.bowler.overs if current_match.bowler else "0.0" }})
+              </span>
+            </div>
+          </div>
+
+          <!-- Recent Over Deliveries Pill Strip -->
+          <div class="flex items-center justify-between gap-1 pt-0.5">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight">THIS OVER</span>
+            <div id="balls-strip" class="flex items-center gap-1.5">
+              {% for b in current_match.recent_balls or ['1', '0', '4', '0', 'W', '6'] %}
+              <span class="w-6 h-6 rounded-full text-[11px] font-extrabold flex items-center justify-center font-mono-score
+                {% if b == 'W' %}bg-red-600 text-white shadow-[0_0_8px_#dc2626]
+                {% elif b == '4' %}bg-emerald-600 text-white shadow-[0_0_8px_#059669]
+                {% elif b == '6' %}bg-purple-600 text-white shadow-[0_0_8px_#7c3aed]
+                {% elif 'wd' in b or 'nb' in b %}bg-amber-600 text-white
+                {% else %}bg-slate-800 text-slate-200 border border-slate-700{% endif %}">
+                {{ b }}
+              </span>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time SSE Script -->
+  <script>
+    let lastBallSignature = "";
+    let eventSource = null;
+
+    // Check query params for custom styling & watermark clearance
+    const urlParams = new URLSearchParams(window.location.search);
+    const pos = urlParams.get('pos');
+    const bottomParam = urlParams.get('bottom') || urlParams.get('lift');
+    const rightParam = urlParams.get('right') || urlParams.get('safe_right');
+
+    if (pos === 'top') {
+      document.body.classList.remove('justify-end', 'pb-16', 'pb-20');
+      document.body.classList.add('justify-start', 'pt-4', 'sm:pt-6');
+      document.body.style.paddingBottom = '0px';
+    } else if (bottomParam) {
+      document.body.style.paddingBottom = `${bottomParam}px`;
+    }
+
+    if (rightParam) {
+      const wrapper = document.getElementById("ticker-wrapper");
+      if (wrapper) {
+        wrapper.style.paddingRight = `${rightParam}px`;
+      }
+    }
+
+    function triggerCelebration(type, label, icon, bgClass) {
+      const container = document.getElementById("celebration-container");
+      const card = document.getElementById("celebration-card");
+      const iconEl = document.getElementById("celebration-icon");
+      const textEl = document.getElementById("celebration-text");
+
+      iconEl.textContent = icon;
+      textEl.textContent = label;
+      card.className = `px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border text-white font-black text-2xl sm:text-3xl tracking-wider uppercase font-chakra ${bgClass} animate-celebrate`;
+
+      container.classList.remove("hidden");
+      setTimeout(() => {
+        container.classList.add("hidden");
+        card.classList.remove("animate-celebrate");
+      }, 3500);
+    }
+
+    function updateTickerUI(match) {
+      if (!match || match.status === "idle") return;
+
+      try {
+        // Teams & Scores
+        const batting = match.batting_team || match.team_a || "Batting";
+        document.getElementById("batting-team-short").textContent = batting;
+        document.getElementById("score-text").textContent = `${match.runs ?? 0}/${match.wickets ?? 0}`;
+        document.getElementById("overs-text").textContent = `(${match.overs || "0.0"}/${match.overs_limit || 8} ov)`;
+        
+        document.getElementById("crr-text").textContent = match.crr || "0.00";
+        document.getElementById("target-text").textContent = match.target || "-";
+        document.getElementById("rrr-text").textContent = match.rrr || "-";
+
+        if (match.equation) {
+          document.getElementById("equation-text").textContent = match.equation;
+        }
+        if (match.tournament_name) {
+          document.getElementById("tourney-title").textContent = match.tournament_name;
+        }
+
+        // Batters
+        if (match.batters && match.batters.length > 0) {
+          const b1 = match.batters[0];
+          document.getElementById("batter1-name").textContent = b1.name || "Batter 1*";
+          document.getElementById("batter1-runs").textContent = b1.runs ?? 0;
+          document.getElementById("batter1-balls").textContent = `(${b1.balls ?? 0})`;
+
+          if (match.batters.length > 1) {
+            const b2 = match.batters[1];
+            document.getElementById("batter2-name").textContent = b2.name || "Batter 2";
+            document.getElementById("batter2-runs").textContent = b2.runs ?? 0;
+            document.getElementById("batter2-balls").textContent = `(${b2.balls ?? 0})`;
+          }
+        }
+
+        // Bowler
+        if (match.bowler) {
+          const bw = match.bowler;
+          document.getElementById("bowler-name").textContent = bw.name || "Bowler";
+          document.getElementById("bowler-figures").textContent = `${bw.wickets ?? 0}-${bw.runs ?? 0}`;
+          document.getElementById("bowler-overs").textContent = `(${bw.overs || "0.0"})`;
+        }
+
+        // Deliveries Strip
+        const ballsStrip = document.getElementById("balls-strip");
+        if (ballsStrip && match.recent_balls) {
+          ballsStrip.innerHTML = "";
+          match.recent_balls.slice(-6).forEach(b => {
+            const span = document.createElement("span");
+            span.className = "w-6 h-6 rounded-full text-[11px] font-extrabold flex items-center justify-center font-mono-score transition-all";
+            const bStr = String(b);
+            if (bStr === "W") {
+              span.className += " bg-red-600 text-white shadow-[0_0_8px_#dc2626]";
+            } else if (bStr === "4") {
+              span.className += " bg-emerald-600 text-white shadow-[0_0_8px_#059669]";
+            } else if (bStr === "6") {
+              span.className += " bg-purple-600 text-white shadow-[0_0_8px_#7c3aed]";
+            } else if (bStr.includes("wd") || bStr.includes("nb")) {
+              span.className += " bg-amber-600 text-white";
+            } else {
+              span.className += " bg-slate-800 text-slate-200 border border-slate-700";
+            }
+            span.textContent = bStr;
+            ballsStrip.appendChild(span);
+          });
+
+          // Detect Celebration Alert
+          const currentSignature = `${match.overs}_${match.runs}_${match.wickets}`;
+          if (lastBallSignature && currentSignature !== lastBallSignature && match.recent_balls.length > 0) {
+            const lastBall = String(match.recent_balls[match.recent_balls.length - 1]);
+            if (lastBall === "4") {
+              triggerCelebration("four", "FOUR! 🏏", "💥", "bg-emerald-600/95 border-emerald-400 shadow-emerald-600/40");
+            } else if (lastBall === "6") {
+              triggerCelebration("six", "MAXIMUM! 🚀 6", "🔥", "bg-purple-600/95 border-purple-400 shadow-purple-600/40");
+            } else if (lastBall === "W") {
+              triggerCelebration("wicket", "WICKET! ☝️", "⚡", "bg-red-600/95 border-red-400 shadow-red-600/40");
+            }
+          }
+          lastBallSignature = currentSignature;
+        }
+
+      } catch (err) {
+        console.error("Error updating ticker UI:", err);
+      }
+    }
+
+    function initSSE() {
+      if (eventSource) eventSource.close();
+      eventSource = new EventSource("/api/live/stream");
+      eventSource.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data);
+          updateTickerUI(data);
+        } catch (err) {
+          console.error("SSE parse error:", err);
+        }
+      };
+      eventSource.onerror = () => {
+        eventSource.close();
+        setTimeout(initSSE, 4000);
+      };
+    }
+
+    // Fallback heartbeat polling every 3 seconds to guarantee updates over mobile/Cloudflare tunnels
+    function pollState() {
+      fetch("/api/state")
+        .then(res => res.json())
+        .then(state => {
+          if (state.current_match) {
+            updateTickerUI(state.current_match);
+          }
+        })
+        .catch(() => {});
+    }
+
+    // Initial fetch from /api/state
+    pollState();
+    initSSE();
+    setInterval(pollState, 3000);
+  </script>
+</body>
+</html>
