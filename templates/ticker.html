@@ -319,9 +319,33 @@
       }, 3500);
     }
 
-    let lastBowlerKey = "";
-    let knownBatterKeys = new Set();
+    let currentMatchId = null;
+    let activeCreaseBatters = [];
+    let isInitialBatterLoad = true;
+    let currentBowler = null;
+    let isInitialBowlerLoad = true;
     let spotlightTimer = null;
+
+    function normalizePlayerName(name) {
+      if (!name) return "";
+      return String(name)
+        .replace(/\*/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toLowerCase();
+    }
+
+    function isSamePlayer(p1, p2) {
+      if (!p1 || !p2) return false;
+      const id1 = p1.player_id && Number(p1.player_id) > 0 ? String(p1.player_id) : null;
+      const id2 = p2.player_id && Number(p2.player_id) > 0 ? String(p2.player_id) : null;
+      if (id1 && id2) {
+        return id1 === id2;
+      }
+      const n1 = normalizePlayerName(p1.name);
+      const n2 = normalizePlayerName(p2.name);
+      return Boolean(n1 && n2 && n1 === n2);
+    }
 
     function showPlayerSpotlight(player, type) {
       if (!player || !player.name) return;
@@ -340,8 +364,10 @@
       const key2Label = document.getElementById("stat-key2-label");
       const key2Val = document.getElementById("stat-key2-val");
 
-      photoEl.src = player.photo || (player.stats && player.stats.photo) || "https://media.cricheroes.in/default/user_profile.png";
-      nameEl.textContent = player.name.replace("*", "");
+      const photoUrl = player.photo || (player.stats && player.stats.photo) || "https://media.cricheroes.in/default/user_profile.png";
+      photoEl.src = photoUrl;
+      photoEl.onerror = () => { photoEl.src = "https://media.cricheroes.in/default/user_profile.png"; };
+      nameEl.textContent = (player.name || "").replace(/\*/g, "").trim();
 
       const stats = player.stats || {};
       const matches = stats.total_matches !== undefined ? stats.total_matches : (stats.matches !== undefined ? stats.matches : 0);
@@ -352,7 +378,9 @@
         badgeEl.className = "absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-rose-600 text-white border border-rose-400 shadow";
         titleEl.textContent = "⚡ NEW BOWLER INTO THE ATTACK";
         titleEl.className = "text-[10px] font-bold tracking-wider uppercase text-rose-400 font-chakra";
-        styleEl.textContent = `${stats.bowling_style || "Right-arm Medium"} • ${stats.playing_role || "Bowler"}`;
+
+        let roleText = `${stats.bowling_style || "Right-arm Medium"} • ${stats.playing_role || "Bowler"}`;
+        styleEl.textContent = roleText;
 
         key1Label.textContent = "WICKETS";
         key1Val.textContent = stats.total_wickets !== undefined ? stats.total_wickets : (stats.wickets !== undefined ? stats.wickets : 0);
@@ -366,14 +394,19 @@
         badgeEl.className = "absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-emerald-600 text-white border border-emerald-400 shadow";
         titleEl.textContent = "🏏 NEW BATTER AT THE CREASE";
         titleEl.className = "text-[10px] font-bold tracking-wider uppercase text-emerald-400 font-chakra";
-        styleEl.textContent = `${stats.batting_hand || "Right Hand Bat"} • ${stats.playing_role || "Batsman"}`;
+
+        let roleText = `${stats.batting_hand || "Right Hand Bat"} • ${stats.playing_role || "Batsman"}`;
+        if (stats.highest_runs) {
+          roleText += ` • HS: ${stats.highest_runs}`;
+        }
+        styleEl.textContent = roleText;
 
         key1Label.textContent = "RUNS";
         key1Val.textContent = stats.total_runs !== undefined ? stats.total_runs : (stats.runs !== undefined ? stats.runs : 0);
         key1Val.className = "text-sm sm:text-base font-black text-amber-400 font-mono-score";
 
         key2Label.textContent = "STRIKE RATE";
-        key2Val.textContent = stats.bat_sr || stats.sr || (stats.highest_runs ? `HS: ${stats.highest_runs}` : "0.0");
+        key2Val.textContent = stats.bat_sr || stats.sr || "0.0";
         key2Val.className = "text-sm sm:text-base font-black text-sky-400 font-mono-score";
       }
 
@@ -398,6 +431,16 @@
       if (!match || match.status === "idle") return;
 
       try {
+        // Reset tracking if match changed
+        const matchId = match.match_id ? String(match.match_id) : (match.tournament_name || "match");
+        if (currentMatchId !== matchId) {
+          currentMatchId = matchId;
+          activeCreaseBatters = [];
+          isInitialBatterLoad = true;
+          currentBowler = null;
+          isInitialBowlerLoad = true;
+        }
+
         // Teams & Scores
         const batting = match.batting_team || match.team_a || "Batting";
         document.getElementById("batting-team-short").textContent = batting;
@@ -415,14 +458,16 @@
           document.getElementById("tourney-title").textContent = match.tournament_name;
         }
 
-        // Batters
+        // Batters Display & Crease Tracking
         if (match.batters && match.batters.length > 0) {
           const b1 = match.batters[0];
           document.getElementById("batter1-name").textContent = b1.name || "Batter 1*";
           document.getElementById("batter1-runs").textContent = b1.runs ?? 0;
           document.getElementById("batter1-balls").textContent = `(${b1.balls ?? 0})`;
           const b1Photo = document.getElementById("batter1-photo");
-          if (b1Photo && b1.photo) b1Photo.src = b1.photo;
+          if (b1Photo) {
+            b1Photo.src = b1.photo || (b1.stats && b1.stats.photo) || "https://media.cricheroes.in/default/user_profile.png";
+          }
 
           if (match.batters.length > 1) {
             const b2 = match.batters[1];
@@ -430,34 +475,60 @@
             document.getElementById("batter2-runs").textContent = b2.runs ?? 0;
             document.getElementById("batter2-balls").textContent = `(${b2.balls ?? 0})`;
             const b2Photo = document.getElementById("batter2-photo");
-            if (b2Photo && b2.photo) b2Photo.src = b2.photo;
+            if (b2Photo) {
+              b2Photo.src = b2.photo || (b2.stats && b2.stats.photo) || "https://media.cricheroes.in/default/user_profile.png";
+            }
+          } else {
+            document.getElementById("batter2-name").textContent = "Incoming...";
+            document.getElementById("batter2-runs").textContent = "-";
+            document.getElementById("batter2-balls").textContent = "";
+            const b2Photo = document.getElementById("batter2-photo");
+            if (b2Photo) {
+              b2Photo.src = "https://media.cricheroes.in/default/user_profile.png";
+            }
           }
 
-          // Check if new batter arrived
-          match.batters.forEach(b => {
-            const bKey = (b.player_id || '') + '_' + b.name.replace('*', '').trim();
-            if (knownBatterKeys.size > 0 && !knownBatterKeys.has(bKey) && b.name) {
-              showPlayerSpotlight(b, "batter");
+          // Crease Spotlight Detection
+          const validBatters = match.batters.filter(b => b && normalizePlayerName(b.name));
+          if (isInitialBatterLoad) {
+            // First load or match switch: both batters are already on the pitch, suppress popup
+            activeCreaseBatters = [...validBatters];
+            isInitialBatterLoad = false;
+          } else {
+            // Detect strictly the incoming batter who was NOT at the crease
+            const incoming = validBatters.filter(curr => {
+              const wasAtCrease = activeCreaseBatters.some(prev => isSamePlayer(curr, prev));
+              return !wasAtCrease;
+            });
+
+            if (incoming.length > 0) {
+              showPlayerSpotlight(incoming[0], "batter");
             }
-            knownBatterKeys.add(bKey);
-          });
+
+            activeCreaseBatters = [...validBatters];
+          }
         }
 
-        // Bowler
-        if (match.bowler) {
+        // Bowler Display & Change Detection
+        if (match.bowler && match.bowler.name) {
           const bw = match.bowler;
           document.getElementById("bowler-name").textContent = bw.name || "Bowler";
           document.getElementById("bowler-figures").textContent = `${bw.wickets ?? 0}-${bw.runs ?? 0}`;
           document.getElementById("bowler-overs").textContent = `(${bw.overs || "0.0"})`;
           const bwPhoto = document.getElementById("bowler-photo");
-          if (bwPhoto && bw.photo) bwPhoto.src = bw.photo;
-
-          // Check if bowler changed
-          const currentBowlerKey = (bw.player_id || '') + '_' + (bw.name || '').trim();
-          if (lastBowlerKey && currentBowlerKey !== lastBowlerKey && bw.name) {
-            showPlayerSpotlight(bw, "bowler");
+          if (bwPhoto) {
+            bwPhoto.src = bw.photo || (bw.stats && bw.stats.photo) || "https://media.cricheroes.in/default/user_profile.png";
           }
-          lastBowlerKey = currentBowlerKey;
+
+          if (isInitialBowlerLoad) {
+            currentBowler = bw;
+            isInitialBowlerLoad = false;
+          } else {
+            if (!isSamePlayer(bw, currentBowler)) {
+              showPlayerSpotlight(bw, "bowler");
+              currentBowler = bw;
+            }
+          }
         }
 
         // Deliveries Strip

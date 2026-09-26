@@ -154,9 +154,10 @@ class MatchSimulator:
             self.wickets += 1
             self.bowler["wickets"] += 1
             self.current_over_balls.append("W")
-            # Replace out batter
-            next_batter_names = ["Manish Harne", "Divyam Pant", "Biswajit Nath", "Darshit D Patel"]
-            choice_name = random.choice(next_batter_names)
+            # Replace out batter (exclude the surviving partner at the other end)
+            surviving_name = non_striker["name"].replace("*", "").strip()
+            available_batters = [name for name in ["Manish Harne", "Divyam Pant", "Biswajit Nath", "Darshit D Patel", "Chintan Selarka"] if name.lower() != surviving_name.lower()]
+            choice_name = random.choice(available_batters)
             p_info = SIMULATOR_PLAYERS.get(choice_name, {
                 "player_id": 99999, "name": choice_name, "photo": "https://media.cricheroes.in/default/user_profile.png",
                 "playing_role": "Batsman", "batting_hand": "RHB", "bowling_style": "", "total_matches": 10, "total_runs": 80, "highest_runs": "25"
@@ -226,9 +227,10 @@ class MatchSimulator:
             b0["name"] = b0["name"].replace("*", "")
             b1["name"] = b1["name"].replace("*", "") + "*"
             self.batters = [b1, b0]
-            # Change bowler
-            next_bowlers = ["Darshit D Patel", "Chintan Selarka", "Divyam Pant"]
-            bw_name = random.choice(next_bowlers)
+            # Change bowler (exclude current bowler)
+            current_bw = self.bowler["name"]
+            available_bowlers = [bw for bw in ["Darshit D Patel", "Chintan Selarka", "Divyam Pant", "Biswajit Nath"] if bw.lower() != current_bw.lower()]
+            bw_name = random.choice(available_bowlers)
             bw_info = SIMULATOR_PLAYERS.get(bw_name, {
                 "player_id": 88888, "name": bw_name, "photo": "https://media.cricheroes.in/default/user_profile.png",
                 "playing_role": "Bowler", "batting_hand": "RHB", "bowling_style": "Right-arm Medium", "total_matches": 15, "total_wickets": 12, "bowl_econ": "8.50"
