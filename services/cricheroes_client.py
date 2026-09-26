@@ -312,6 +312,53 @@ class CricHeroesClient:
 
         return state
 
+    def get_match_by_id(self, match_id: int) -> Optional[Dict[str, Any]]:
+        """Finds match info in cached upcoming/live matches and formats as a scorecard dict."""
+        state = self.load_cached_state()
+        all_matches = state.get("upcoming_matches", []) + state.get("live_matches", [])
+        for m in all_matches:
+            if m.get("match_id") == match_id:
+                start_time = m.get("match_start_time", "")
+                time_str = ""
+                if start_time:
+                    try:
+                        from datetime import datetime
+                        dt = datetime.fromisoformat(start_time.replace("Z", "+00:00"))
+                        time_str = dt.strftime("%I:%M %p")
+                    except Exception:
+                        time_str = ""
+                eq_str = f"SCHEDULED {time_str} - {m.get('team_a')} VS {m.get('team_b')}" if time_str else f"{m.get('team_a')} VS {m.get('team_b')}"
+                return {
+                    "match_id": match_id,
+                    "team_a": m.get("team_a", "Team A"),
+                    "team_b": m.get("team_b", "Team B"),
+                    "batting_team": m.get("team_a", "Team A"),
+                    "runs": 0,
+                    "wickets": 0,
+                    "overs": "0.0",
+                    "overs_limit": m.get("overs", 8),
+                    "crr": "0.00",
+                    "target": "-",
+                    "rrr": "-",
+                    "round_name": m.get("tournament_round_name") or "League Match",
+                    "ground_name": m.get("ground_name") or "Nimbalkar sports Club, Lohegaon Pune",
+                    "equation": eq_str.upper(),
+                    "recent_balls": ["-", "-", "-", "-", "-", "-"],
+                    "batters": [
+                        {"name": f"{m.get('team_a')} Openers", "runs": 0, "balls": 0, "fours": 0, "sixes": 0, "sr": "0.0"}
+                    ],
+                    "bowler": {
+                        "name": f"{m.get('team_b')} Opening Bowler",
+                        "overs": "0.0",
+                        "maidens": 0,
+                        "runs": 0,
+                        "wickets": 0,
+                        "econ": "0.00"
+                    },
+                    "status": m.get("status", "upcoming")
+                }
+        return None
+
     @staticmethod
     def load_cached_state() -> Dict[str, Any]:
         """Loads locally cached tournament state if available."""

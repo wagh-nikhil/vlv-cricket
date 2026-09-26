@@ -45,7 +45,7 @@ client = CricHeroesClient()
 # In-Memory App State
 app_state = {
     "live_source": "real_cricheroes", # "real_cricheroes", "tournament_2169387", "simulator"
-    "active_match_id": 27303530,      # Live match
+    "active_match_id": 27016163,      # Default to Match 1 (F Wing vs A wing)
     "current_match": None,
     "simulation_mode": False,
     "sim_auto_step": False,
@@ -74,6 +74,8 @@ async def background_poller():
 
             if app_state["live_source"] == "real_cricheroes":
                 current_match = await asyncio.to_thread(client.fetch_live_mini_scorecard, app_state["active_match_id"])
+                if not current_match:
+                    current_match = client.get_match_by_id(app_state["active_match_id"])
             elif app_state["live_source"] == "simulator" or app_state["simulation_mode"]:
                 if app_state["sim_auto_step"]:
                     current_match = simulator_instance.bowl_next_ball()
@@ -119,6 +121,8 @@ async def index_page(request: Request):
     if not current_match:
         if app_state["live_source"] == "real_cricheroes":
             current_match = await asyncio.to_thread(client.fetch_live_mini_scorecard, app_state["active_match_id"])
+            if not current_match:
+                current_match = client.get_match_by_id(app_state["active_match_id"])
         elif app_state["live_source"] == "simulator":
             current_match = simulator_instance.get_state()
         app_state["current_match"] = current_match
@@ -140,7 +144,9 @@ async def index_page(request: Request):
 @app.get("/overlay", response_class=HTMLResponse)
 async def ticker_overlay_page(request: Request):
     """Broadcast-quality transparent cricket ticker lower-third for PRISM Live Studio & streaming."""
-    current_match = app_state.get("current_match") or {}
+    current_match = app_state.get("current_match")
+    if not current_match:
+        current_match = client.get_match_by_id(app_state["active_match_id"]) or {}
     tournament = app_state["cached_tournament"].get("tournament", {})
     return templates.TemplateResponse(
         request=request,
@@ -212,6 +218,8 @@ async def select_live_match(req: MatchSelectRequest):
     else:
         app_state["simulation_mode"] = False
         match_data = await asyncio.to_thread(client.fetch_live_mini_scorecard, req.match_id)
+        if not match_data:
+            match_data = client.get_match_by_id(req.match_id)
         if match_data:
             app_state["current_match"] = match_data
             return {"status": "success", "match": match_data}

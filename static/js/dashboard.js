@@ -153,6 +153,9 @@ function updateControlsUI(state) {
       sourceTag.textContent = "● REAL CRICHEROES LIVE";
       sourceTag.className = "px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
     }
+    if (sourceSelect && state.active_match_id) {
+      sourceSelect.value = String(state.active_match_id);
+    }
   }
 
   if (simCheckbox) simCheckbox.checked = state.simulation_mode || false;

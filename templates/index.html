@@ -100,11 +100,22 @@
             <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Match Source</div>
             <div class="flex flex-wrap items-center gap-2 mt-0.5">
               <select id="match-source-select" onchange="onMatchSourceChange(this.value)" class="bg-slate-950 border border-slate-700 text-white font-semibold text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-500 cursor-pointer">
-                <option value="27303530" selected>🔴 Jumma 11 Vs Jama 11 (Real CricHeroes Live)</option>
-                <option value="27303030">🔴 Mavericks United (Real CricHeroes Live)</option>
-                <option value="27123027">🔴 Pune Memon United vs Kachhi Royals</option>
-                <option value="tournament_2169387">⚔️ VLV Tournament 2169387 (Auto Monitor Schedule)</option>
-                <option value="simulator">🎮 Demo Match Simulator (F Wing vs A Wing)</option>
+                <optgroup label="🏆 VLV Tournament 2026 Matches">
+                  <option value="27016163" {% if active_match_id == 27016163 %}selected{% endif %}>Match 1: F Wing vs A wing (#27016163)</option>
+                  <option value="27016191" {% if active_match_id == 27016191 %}selected{% endif %}>Match 2: H Wing vs C Wing (#27016191)</option>
+                  <option value="27016204" {% if active_match_id == 27016204 %}selected{% endif %}>Match 3: E Wing vs B Wing (#27016204)</option>
+                  <option value="27016237" {% if active_match_id == 27016237 %}selected{% endif %}>Match 4: F Wing vs C Wing (#27016237)</option>
+                  <option value="27016267" {% if active_match_id == 27016267 %}selected{% endif %}>Match 5: B Wing vs A wing (#27016267)</option>
+                  <option value="27016293" {% if active_match_id == 27016293 %}selected{% endif %}>Match 6: E Wing vs H Wing (#27016293)</option>
+                  <option value="27016312" {% if active_match_id == 27016312 %}selected{% endif %}>Match 7: B Wing vs C Wing (#27016312)</option>
+                  <option value="27016332" {% if active_match_id == 27016332 %}selected{% endif %}>Match 8: H Wing vs F Wing (#27016332)</option>
+                  <option value="27016358" {% if active_match_id == 27016358 %}selected{% endif %}>Match 9: E Wing vs A wing (#27016358)</option>
+                </optgroup>
+                <optgroup label="⚙️ Modes & Testing">
+                  <option value="tournament_2169387">⚔️ VLV Tournament Auto-Monitor</option>
+                  <option value="simulator">🎮 Demo Match Simulator (Test Controls)</option>
+                  <option value="27303530">🔴 Live Test: Jumma 11 Vs Jama 11</option>
+                </optgroup>
               </select>
               <span id="source-tag" class="px-2 py-0.5 rounded text-[11px] font-bold bg-red-500/20 text-red-400 border border-red-500/30">
                 ● REAL CRICHEROES LIVE
