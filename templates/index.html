@@ -3,51 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ tournament.name or "VLV Ganapti Mens Cricket Tournament 2026" }} - Live Scoreboard & Poster Hub</title>
+  <title>{{ tournament.name or "VLV Ganapati Men's Cricket Tournament 2026" }} - Live Scoreboard</title>
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="/static/css/styles.css">
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#f0fdf4',
-              500: '#22c55e',
-              600: '#16a34a',
-            },
-            cricket: {
-              gold: '#facc15',
-              red: '#ef4444',
-              blue: '#3b82f6',
-              dark: '#0f172a',
-              card: '#1e293b',
-              border: '#334155',
-            }
-          }
-        }
-      }
-    }
-  </script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans flex flex-col antialiased selection:bg-blue-600 selection:text-white">
 
   <!-- TOP NAVIGATION HEADER -->
   <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
-      <!-- Title & Tournament Badge -->
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+      <!-- Title & Tournament Info -->
       <div class="flex items-center space-x-3">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-emerald-500 flex items-center justify-center font-black text-slate-950 shadow-lg shadow-amber-500/20 text-xl">
           🏏
         </div>
         <div>
-          <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white flex items-center gap-2">
+          <h1 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
             <span>{{ tournament.name or "VLV Ganapati Men's Cricket Tournament 2026" }}</span>
-            <span class="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 font-medium">Tournament #2169387</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 font-medium">#2169387</span>
           </h1>
           <p class="text-xs text-slate-400 flex items-center gap-2">
             <span>📍 {{ tournament.city_name or "Pune" }}</span>
@@ -62,33 +38,33 @@
       </div>
 
       <!-- Live Controls & Status Indicators -->
-      <div class="flex items-center space-x-3">
+      <div class="flex items-center space-x-2 sm:space-x-3">
         <!-- Live Mode Badge -->
-        <div id="mode-badge" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-purple-500/20 text-purple-300 border border-purple-500/40">
-          <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
-          <span id="mode-label">Simulation Mode Active</span>
+        <div id="mode-badge" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="mode-label">Live Feed Active</span>
         </div>
 
         <!-- Sync Button -->
         <button id="btn-sync" onclick="syncCricHeroes()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 text-xs font-medium rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm">
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-          <span>Sync CricHeroes</span>
+          <span>Sync</span>
         </button>
 
-        <!-- Generate Poster Shortcut -->
-        <button onclick="generatePosterNow()" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs font-semibold rounded-lg shadow-md shadow-blue-600/30 transition flex items-center gap-1.5">
-          <i data-lucide="image" class="w-3.5 h-3.5"></i>
-          <span>Create Poster</span>
-        </button>
+        <!-- Camera Ticker Link -->
+        <a href="/ticker" target="_blank" title="Open camera ticker overlay" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+          <i data-lucide="video" class="w-3.5 h-3.5 text-rose-400"></i>
+          <span>Ticker Overlay</span>
+        </a>
       </div>
     </div>
 
     <!-- TAB NAVIGATION BAR -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-800/60">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 border-t border-slate-800/60">
       <nav class="flex space-x-6 overflow-x-auto no-scrollbar" aria-label="Tabs">
         <button onclick="switchTab('tab-live')" id="nav-tab-live" class="tab-btn active-tab py-3 px-1 border-b-2 font-medium text-sm text-blue-400 border-blue-500 flex items-center gap-2 whitespace-nowrap">
           <i data-lucide="activity" class="w-4 h-4"></i>
-          <span>Live Match Center</span>
+          <span>Live Match</span>
         </button>
         <button onclick="switchTab('tab-matches')" id="nav-tab-matches" class="tab-btn py-3 px-1 border-b-2 font-medium text-sm text-slate-400 border-transparent hover:text-slate-200 flex items-center gap-2 whitespace-nowrap">
           <i data-lucide="calendar" class="w-4 h-4"></i>
@@ -98,48 +74,39 @@
           <i data-lucide="users" class="w-4 h-4"></i>
           <span>Teams & Squads (6)</span>
         </button>
-        <button onclick="switchTab('tab-history')" id="nav-tab-history" class="tab-btn py-3 px-1 border-b-2 font-medium text-sm text-slate-400 border-transparent hover:text-slate-200 flex items-center gap-2 whitespace-nowrap">
-          <i data-lucide="history" class="w-4 h-4"></i>
-          <span>Poster & WhatsApp Log</span>
-        </button>
-        <button onclick="switchTab('tab-ticker')" id="nav-tab-ticker" class="tab-btn py-3 px-1 border-b-2 font-medium text-sm text-slate-400 border-transparent hover:text-slate-200 flex items-center gap-2 whitespace-nowrap">
-          <i data-lucide="video" class="w-4 h-4 text-rose-400"></i>
-          <span>PRISM Live Overlay</span>
-          <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">NEW</span>
-        </button>
         <button onclick="switchTab('tab-settings')" id="nav-tab-settings" class="tab-btn py-3 px-1 border-b-2 font-medium text-sm text-slate-400 border-transparent hover:text-slate-200 flex items-center gap-2 whitespace-nowrap">
           <i data-lucide="settings" class="w-4 h-4"></i>
-          <span>Settings & Anti-Block</span>
+          <span>Settings</span>
         </button>
       </nav>
     </div>
   </header>
 
   <!-- MAIN CONTENT CONTAINER -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full space-y-6">
 
     <!-- ================================================================= -->
-    <!-- TAB 1: LIVE MATCH CENTER & POSTER -->
+    <!-- TAB 1: LIVE MATCH CENTER                                          -->
     <!-- ================================================================= -->
     <div id="tab-live" class="tab-content space-y-6">
 
       <!-- LIVE MATCH SELECTION BAR -->
       <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-lg flex flex-wrap items-center justify-between gap-4">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 border border-red-500/30 flex items-center justify-center relative">
+          <div class="w-9 h-9 rounded-xl bg-red-500/20 text-red-400 border border-red-500/30 flex items-center justify-center relative shrink-0">
             <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
           </div>
           <div>
-            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Live Match Source</div>
+            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Match Source</div>
             <div class="flex flex-wrap items-center gap-2 mt-0.5">
               <select id="match-source-select" onchange="onMatchSourceChange(this.value)" class="bg-slate-950 border border-slate-700 text-white font-semibold text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-500 cursor-pointer">
-                <option value="27123027" selected>🔴 Pune Memon United vs Kachhi Royals (Real CricHeroes Live)</option>
-                <option value="27108045">🔴 Aryans A vs Aryans B (Real CricHeroes Live)</option>
-                <option value="27109491">🔴 Veer Xi vs Om XI (Real CricHeroes Match)</option>
-                <option value="tournament_2169387">⚔️ VLV Tournament 2169387 (Upcoming - Starts Sep 26)</option>
+                <option value="27303530" selected>🔴 Jumma 11 Vs Jama 11 (Real CricHeroes Live)</option>
+                <option value="27303030">🔴 Mavericks United (Real CricHeroes Live)</option>
+                <option value="27123027">🔴 Pune Memon United vs Kachhi Royals</option>
+                <option value="tournament_2169387">⚔️ VLV Tournament 2169387 (Auto Monitor Schedule)</option>
                 <option value="simulator">🎮 Demo Match Simulator (F Wing vs A Wing)</option>
               </select>
-              <span id="source-tag" class="px-2.5 py-1 rounded text-[11px] font-bold bg-red-500/20 text-red-400 border border-red-500/30">
+              <span id="source-tag" class="px-2 py-0.5 rounded text-[11px] font-bold bg-red-500/20 text-red-400 border border-red-500/30">
                 ● REAL CRICHEROES LIVE
               </span>
             </div>
@@ -149,40 +116,7 @@
         <div class="flex items-center gap-2">
           <input type="number" id="custom-match-id" placeholder="CricHeroes Match ID" class="bg-slate-950 border border-slate-700 text-xs text-white rounded-lg px-3 py-2 w-44 focus:outline-none focus:border-blue-500">
           <button onclick="trackCustomMatch()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 active:scale-95 text-xs font-semibold text-white rounded-lg transition flex items-center gap-1 shadow">
-            <i data-lucide="crosshair" class="w-3.5 h-3.5"></i> Track Any Match
-          </button>
-        </div>
-      </div>
-
-      <!-- PRISM LIVE QUICK BANNER -->
-      <div class="bg-gradient-to-r from-rose-950/40 via-purple-950/30 to-slate-900 p-4 rounded-xl border border-rose-500/30 flex flex-wrap items-center justify-between gap-4 shadow-lg">
-        <div class="flex items-center gap-3">
-          <div class="p-2.5 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center">
-            <i data-lucide="video" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <div class="font-bold text-sm text-white flex items-center gap-2">
-              PRISM Live Studio Cam Overlay
-              <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                Transparent Lower-Third Ticker
-              </span>
-            </div>
-            <div class="text-xs text-slate-400">Stream your live camera feed with real-time cricket score ticker in PRISM Live Studio, OBS, or vMix.</div>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2 flex-wrap">
-          <div class="flex items-center bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 font-mono">
-            <span id="quick-ticker-url">http://192.168.1.13:8000/ticker</span>
-          </div>
-          <button onclick="copyTickerUrl()" class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-500 active:scale-95 text-white rounded-lg text-xs font-semibold flex items-center gap-1 transition shadow">
-            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Link
-          </button>
-          <a href="/ticker" target="_blank" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium border border-slate-700 flex items-center gap-1 transition">
-            <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Preview
-          </a>
-          <button onclick="switchTab('tab-ticker')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1 transition">
-            <i data-lucide="help-circle" class="w-3.5 h-3.5"></i> PRISM Guide & 4G Tunnel
+            <i data-lucide="crosshair" class="w-3.5 h-3.5"></i> Track
           </button>
         </div>
       </div>
@@ -194,8 +128,8 @@
             <i data-lucide="gamepad-2" class="w-5 h-5"></i>
           </div>
           <div>
-            <div class="font-semibold text-sm text-purple-200">Interactive Match Simulator Controls</div>
-            <div class="text-xs text-purple-400/80">Tournament matches start Sep 26. Use this to test live score updates, poster creation, and WhatsApp dispatch right now.</div>
+            <div class="font-bold text-sm text-purple-200">Interactive Match Simulation Mode</div>
+            <div class="text-xs text-slate-400">Step through balls to test live scorecard updates.</div>
           </div>
         </div>
 
@@ -204,7 +138,7 @@
             <i data-lucide="play" class="w-3.5 h-3.5"></i> +1 Ball
           </button>
           <button onclick="simNextOver()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-1">
-            <i data-lucide="fast-forward" class="w-3.5 h-3.5"></i> +1 Over (6 Balls)
+            <i data-lucide="fast-forward" class="w-3.5 h-3.5"></i> +1 Over
           </button>
           <button onclick="simReset()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 text-xs font-medium rounded-lg border border-slate-700 transition flex items-center gap-1">
             <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset
@@ -215,234 +149,131 @@
         </div>
       </div>
 
-      <!-- MAIN SCOREBOARD GRID -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- MAIN LIVE SCORECARD CARD (Full Width & Clean) -->
+      <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-xl relative overflow-hidden space-y-6">
+        <!-- Ambient Glow Accent -->
+        <div class="absolute -top-24 -right-24 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
-        <!-- LEFT COLUMN: LIVE SCORECARD DETAILS (7 cols) -->
-        <div class="lg:col-span-7 space-y-6">
+        <!-- Header Row: Live Tag, Match #, Venue -->
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800/80">
+          <div class="flex items-center gap-2">
+            <span class="relative flex h-3 w-3">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+            </span>
+            <span class="text-xs font-bold uppercase tracking-wider text-red-400">LIVE SCORE</span>
+            <span class="text-slate-600">•</span>
+            <span id="match-round" class="text-xs text-slate-400">{{ current_match.round_name or "Limited Overs" }} ({{ current_match.overs_limit or 8 }} Overs)</span>
+          </div>
+          <div id="match-ground" class="text-xs text-slate-400 flex items-center gap-1">
+            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-500"></i>
+            <span>{{ current_match.ground_name or "Nimbalkar Sports Club, Lohegaon" }}</span>
+          </div>
+        </div>
 
-          <!-- MAIN LIVE SCORECARD CARD -->
-          <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-xl relative overflow-hidden">
-            <!-- Ambient Glow Accent -->
-            <div class="absolute -top-24 -right-24 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
-
-            <!-- Header Row: Live Tag, Match #, Venue -->
-            <div class="flex items-center justify-between pb-4 border-b border-slate-800/80">
-              <div class="flex items-center gap-2">
-                <span class="relative flex h-3 w-3">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                </span>
-                <span class="text-xs font-bold uppercase tracking-wider text-red-400">LIVE MATCH</span>
-                <span class="text-slate-600">•</span>
-                <span id="match-round" class="text-xs text-slate-400">{{ current_match.round_name or "Limited Overs" }} ({{ current_match.overs_limit or 20 }} Overs)</span>
-              </div>
-              <div id="match-ground" class="text-xs text-slate-400 flex items-center gap-1">
-                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-500"></i>
-                <span>{{ current_match.ground_name or "Race Sports Club, Pune" }}</span>
-              </div>
+        <!-- Teams & Big Score Display -->
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-3">
+              <h2 id="team-matchup" class="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                {{ current_match.team_a or "Team A" }} <span class="text-slate-500 text-lg font-normal">vs</span> {{ current_match.team_b or "Team B" }}
+              </h2>
             </div>
+            <span id="batting-badge" class="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold">
+              BATTING: {{ current_match.batting_team or "Team A" }}
+            </span>
+          </div>
 
-            <!-- Teams & Big Score Display -->
-            <div class="py-6">
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-3">
-                  <h2 id="team-matchup" class="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                    {{ current_match.team_a or "Veer Xi" }} <span class="text-slate-500 text-lg font-normal">vs</span> {{ current_match.team_b or "Om XI" }}
-                  </h2>
-                </div>
-                <span id="batting-badge" class="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold">
-                  BATTING: {{ current_match.batting_team or "Om XI" }}
-                </span>
-              </div>
-
-              <div class="flex items-baseline gap-4 my-2">
-                <div id="score-display" class="text-6xl sm:text-7xl font-black text-amber-400 tracking-tight font-mono">
-                  {{ current_match.runs if current_match.runs is not none else 0 }}/{{ current_match.wickets if current_match.wickets is not none else 0 }}
-                </div>
-                <div id="overs-display" class="text-2xl sm:text-3xl font-bold text-slate-400">
-                  ({{ current_match.overs or "0.0" }} / {{ current_match.overs_limit or 20 }} ov)
-                </div>
-              </div>
-
-              <!-- Run Rates -->
-              <div class="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-slate-400 mt-2 font-medium">
-                <div>Current RR: <span id="crr-display" class="text-slate-200 font-semibold">{{ current_match.crr or "0.00" }}</span></div>
-                <div class="text-slate-600">|</div>
-                <div>Target: <span id="target-display" class="text-slate-200 font-semibold">{{ current_match.target or "-" }}</span></div>
-                <div class="text-slate-600">|</div>
-                <div>Req RR: <span id="rrr-display" class="text-slate-200 font-semibold">{{ current_match.rrr or "-" }}</span></div>
-              </div>
-
-              <!-- Current Over Strip -->
-              <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center gap-3">
-                <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">This Over:</span>
-                <div id="over-balls-container" class="flex items-center gap-2 flex-wrap">
-                  {% for b in current_match.recent_balls or ['1', '0', '2', '0', '1'] %}
-                  <span class="w-8 h-8 rounded-full {% if b == 'W' %}bg-red-600 text-white{% elif b == '4' %}bg-emerald-600 text-white{% elif b == '6' %}bg-purple-600 text-white{% elif 'wd' in b or 'nb' in b %}bg-amber-600 text-white{% else %}bg-slate-800 text-slate-200 border border-slate-700{% endif %} text-xs font-bold flex items-center justify-center">{{ b }}</span>
-                  {% endfor %}
-                </div>
-              </div>
+          <div class="flex items-baseline gap-4 my-2">
+            <div id="score-display" class="text-6xl sm:text-7xl font-black text-amber-400 tracking-tight font-mono">
+              {{ current_match.runs if current_match.runs is not none else 0 }}/{{ current_match.wickets if current_match.wickets is not none else 0 }}
             </div>
-
-            <!-- Equation Banner -->
-            <div id="equation-banner" class="bg-blue-950/60 border border-blue-500/40 rounded-xl p-3.5 text-center font-bold text-sm sm:text-base text-blue-200 shadow-inner uppercase">
-              ⚡ {{ current_match.equation or "LIVE MATCH IN PROGRESS" }}
+            <div id="overs-display" class="text-2xl sm:text-3xl font-bold text-slate-400">
+              ({{ current_match.overs or "0.0" }} / {{ current_match.overs_limit or 8 }} ov)
             </div>
           </div>
 
-          <!-- BATTERS & BOWLER CARDS GRID -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-            <!-- BATTERS CARD -->
-            <div class="bg-slate-900 rounded-xl border border-slate-800 p-4 shadow-md">
-              <div class="text-xs font-bold uppercase tracking-wider text-sky-400 mb-3 flex items-center justify-between">
-                <span>🏏 Batters at Crease</span>
-                <span class="text-slate-500 font-normal">R (B) • 4s • 6s • SR</span>
-              </div>
-              <div id="batters-list" class="space-y-3">
-                {% for b in current_match.batters or [] %}
-                <div class="flex items-center justify-between {% if loop.first %}pb-2 border-b border-slate-800/60{% endif %}">
-                  <div>
-                    <div class="font-bold text-sm text-slate-100 flex items-center gap-1">
-                      <span>{{ b.name }}</span>
-                    </div>
-                    <div class="text-xs text-slate-400">4s: {{ b.fours or 0 }} | 6s: {{ b.sixes or 0 }} | SR: {{ b.sr or "0.0" }}</div>
-                  </div>
-                  <div class="text-right">
-                    <div class="text-base font-bold text-amber-400">{{ b.runs or 0 }} <span class="text-xs text-slate-400 font-normal">({{ b.balls or 0 }})</span></div>
-                  </div>
-                </div>
-                {% else %}
-                <div class="text-xs text-slate-400 py-2">Loading active batters...</div>
-                {% endfor %}
-              </div>
-            </div>
-
-            <!-- BOWLER CARD -->
-            <div class="bg-slate-900 rounded-xl border border-slate-800 p-4 shadow-md">
-              <div class="text-xs font-bold uppercase tracking-wider text-rose-400 mb-3 flex items-center justify-between">
-                <span>⚡ Current Bowler</span>
-                <span class="text-slate-500 font-normal">O - M - R - W</span>
-              </div>
-              <div id="bowler-info">
-                <div class="font-bold text-base text-slate-100" id="bowler-name">{{ current_match.bowler.name if current_match.bowler else "Bowler" }}</div>
-                <div class="text-2xl font-black text-rose-400 my-1 font-mono" id="bowler-figures">{{ current_match.bowler.overs if current_match.bowler else "0.0" }} - {{ current_match.bowler.maidens if current_match.bowler else 0 }} - {{ current_match.bowler.runs if current_match.bowler else 0 }} - {{ current_match.bowler.wickets if current_match.bowler else 0 }}</div>
-                <div class="text-xs text-slate-400 mt-2 flex items-center justify-between">
-                  <span>Economy: <span id="bowler-econ" class="text-slate-200 font-semibold">{{ current_match.bowler.econ if current_match.bowler else "0.0" }}</span></span>
-                  <span class="text-slate-500">Over in progress</span>
-                </div>
-              </div>
-            </div>
+          <!-- Run Rates -->
+          <div class="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-slate-400 mt-2 font-medium">
+            <div>Current RR: <span id="crr-display" class="text-slate-200 font-semibold">{{ current_match.crr or "0.00" }}</span></div>
+            <div class="text-slate-600">|</div>
+            <div>Target: <span id="target-display" class="text-slate-200 font-semibold">{{ current_match.target or "-" }}</span></div>
+            <div class="text-slate-600">|</div>
+            <div>Req RR: <span id="rrr-display" class="text-slate-200 font-semibold">{{ current_match.rrr or "-" }}</span></div>
           </div>
 
-          <!-- AI VOICE COMMENTARY CARD -->
-          <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/40 rounded-2xl border border-indigo-500/30 p-5 shadow-xl relative overflow-hidden space-y-4">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-              <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
-                  <i data-lucide="mic" class="w-4 h-4"></i>
-                </div>
+          <!-- Current Over Strip -->
+          <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center gap-3">
+            <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">This Over:</span>
+            <div id="over-balls-container" class="flex items-center gap-2 flex-wrap">
+              {% for b in current_match.recent_balls or ['1', '0', '2', '0', '1'] %}
+              <span class="w-8 h-8 rounded-full {% if b == 'W' %}bg-red-600 text-white{% elif b == '4' %}bg-emerald-600 text-white{% elif b == '6' %}bg-purple-600 text-white{% elif 'wd' in b or 'nb' in b %}bg-amber-600 text-white{% else %}bg-slate-800 text-slate-200 border border-slate-700{% endif %} text-xs font-bold flex items-center justify-center">{{ b }}</span>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Equation Banner -->
+        <div id="equation-banner" class="bg-blue-950/60 border border-blue-500/40 rounded-xl p-3.5 text-center font-bold text-sm sm:text-base text-blue-200 shadow-inner uppercase">
+          ⚡ {{ current_match.equation or "LIVE MATCH IN PROGRESS" }}
+        </div>
+
+        <!-- BATTERS & BOWLER CARDS GRID -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+
+          <!-- BATTERS CARD -->
+          <div class="bg-slate-950/60 rounded-xl border border-slate-800 p-4 shadow-md">
+            <div class="text-xs font-bold uppercase tracking-wider text-sky-400 mb-3 flex items-center justify-between">
+              <span>🏏 Batters at Crease</span>
+              <span class="text-slate-500 font-normal">R (B) • 4s • 6s • SR</span>
+            </div>
+            <div id="batters-list" class="space-y-3">
+              {% for b in current_match.batters or [] %}
+              <div class="flex items-center justify-between {% if loop.first %}pb-2 border-b border-slate-800/60{% endif %}">
                 <div>
-                  <h3 class="font-bold text-sm text-white flex items-center gap-2">
-                    AI Voice Commentary
-                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                      LIVE • Prabhat (Indian English)
-                    </span>
-                  </h3>
-                  <div class="text-[11px] text-slate-400">Broadcaster AI commentary via local 9router + neural TTS</div>
+                  <div class="font-bold text-sm text-slate-100 flex items-center gap-1">
+                    <span>{{ b.name }}</span>
+                  </div>
+                  <div class="text-xs text-slate-400">4s: {{ b.fours or 0 }} | 6s: {{ b.sixes or 0 }} | SR: {{ b.sr or "0.0" }}</div>
+                </div>
+                <div class="text-right">
+                  <div class="text-base font-bold text-amber-400">{{ b.runs or 0 }} <span class="text-xs text-slate-400 font-normal">({{ b.balls or 0 }})</span></div>
                 </div>
               </div>
-
-              <div class="flex items-center gap-3">
-                <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
-                  <input type="checkbox" id="auto-play-voice-toggle" class="sr-only peer" checked>
-                  <div class="w-8 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600 relative"></div>
-                  <span>Auto-Speak</span>
-                </label>
-                <button onclick="triggerManualCommentary()" class="px-3 py-1.5 bg-indigo-600/80 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1 transition shadow">
-                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Speak Now
-                </button>
-              </div>
+              {% else %}
+              <div class="text-xs text-slate-400 py-2">Loading active batters...</div>
+              {% endfor %}
             </div>
+          </div>
 
-            <!-- Commentary Text Bubble -->
-            <div class="bg-slate-950/70 rounded-xl p-3.5 border border-slate-800/80 flex items-start gap-3">
-              <div class="text-indigo-400 mt-0.5">
-                <i data-lucide="radio" class="w-4 h-4 animate-pulse"></i>
-              </div>
-              <div class="flex-1">
-                <div id="commentary-transcript" class="text-sm text-slate-200 leading-relaxed italic">
-                  "Live commentary ready. Click Speak Now or bowl a ball to hear realistic broadcast voice updates."
-                </div>
-              </div>
+          <!-- BOWLER CARD -->
+          <div class="bg-slate-950/60 rounded-xl border border-slate-800 p-4 shadow-md">
+            <div class="text-xs font-bold uppercase tracking-wider text-rose-400 mb-3 flex items-center justify-between">
+              <span>⚡ Current Bowler</span>
+              <span class="text-slate-500 font-normal">O - M - R - W</span>
             </div>
-
-            <!-- Audio Player -->
-            <div class="flex items-center justify-between gap-4 pt-1">
-              <audio id="commentary-audio" controls class="w-full h-8 rounded-lg bg-slate-950 text-xs"></audio>
+            <div id="bowler-info">
+              <div class="font-bold text-base text-slate-100" id="bowler-name">{{ current_match.bowler.name if current_match.bowler else "Bowler" }}</div>
+              <div class="text-2xl font-black text-rose-400 my-1 font-mono" id="bowler-figures">{{ current_match.bowler.overs if current_match.bowler else "0.0" }} - {{ current_match.bowler.maidens if current_match.bowler else 0 }} - {{ current_match.bowler.runs if current_match.bowler else 0 }} - {{ current_match.bowler.wickets if current_match.bowler else 0 }}</div>
+              <div class="text-xs text-slate-400 mt-2 flex items-center justify-between">
+                <span>Economy: <span id="bowler-econ" class="text-slate-200 font-semibold">{{ current_match.bowler.econ if current_match.bowler else "0.0" }}</span></span>
+                <span class="text-slate-500">Over in progress</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- RIGHT COLUMN: LIVE POSTER PREVIEW & WHATSAPP ACTIONS (5 cols) -->
-        <div class="lg:col-span-5 space-y-4">
-          <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 shadow-xl">
-            <div class="flex items-center justify-between mb-3">
-              <h3 class="font-bold text-sm text-slate-200 flex items-center gap-2">
-                <i data-lucide="image" class="w-4 h-4 text-blue-400"></i>
-                <span>Auto-Generated Match Poster</span>
-              </h3>
-              <span id="poster-timestamp" class="text-xs text-slate-400">Updated just now</span>
-            </div>
-
-            <!-- Poster Image Container -->
-            <div class="relative group rounded-xl overflow-hidden border border-slate-800 bg-slate-950 aspect-square shadow-inner">
-              <img id="poster-preview" src="/posters/latest_poster.png?v=1" alt="Match Score Poster" class="w-full h-full object-cover transition duration-300">
-              <div class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-3">
-                <a id="poster-download-link" href="/posters/latest_poster.png" download="VLV_Match_Poster.png" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold shadow flex items-center gap-1.5">
-                  <i data-lucide="download" class="w-4 h-4"></i> Download PNG
-                </a>
-              </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="grid grid-cols-2 gap-3 mt-4">
-              <button onclick="generatePosterNow()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition flex items-center justify-center gap-2">
-                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh Poster
-              </button>
-
-              <button onclick="dispatchToWhatsApp()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-xl text-xs font-semibold shadow-md shadow-emerald-600/30 transition flex items-center justify-center gap-2">
-                <i data-lucide="send" class="w-4 h-4"></i> Share to WhatsApp
-              </button>
-            </div>
-
-            <!-- Quick WhatsApp 1-Click Link -->
-            <div class="mt-4 p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs">
-              <div class="font-semibold text-slate-300 mb-1 flex items-center justify-between">
-                <span>💬 1-Click Group Share</span>
-                <span class="text-emerald-400 font-mono text-[10px]">PRE-FORMATTED</span>
-              </div>
-              <p class="text-slate-400 text-[11px] mb-2 leading-relaxed">
-                Clicking will open WhatsApp with the live match scorecard text and link pre-filled, ready to send to your group.
-              </p>
-              <a id="wa-direct-link" href="https://api.whatsapp.com/send?text=Live+Score" target="_blank" class="w-full block text-center py-2 bg-slate-800/80 hover:bg-emerald-900/40 text-emerald-400 border border-emerald-500/30 rounded-lg font-medium transition">
-                Open in WhatsApp Web / App →
-              </a>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
     <!-- ================================================================= -->
-    <!-- TAB 2: UPCOMING MATCHES (SCHEDULE) -->
+    <!-- TAB 2: UPCOMING MATCHES (SCHEDULE)                                -->
     <!-- ================================================================= -->
     <div id="tab-matches" class="tab-content hidden space-y-4">
       <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-xl">
         <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
           <div>
-            <h2 class="text-xl font-bold text-white">Tournament Match Schedule</h2>
+            <h2 class="text-lg font-bold text-white">Tournament Match Schedule</h2>
             <p class="text-xs text-slate-400">All 9 matches for VLV Ganapati Men's Cricket Tournament 2026</p>
           </div>
           <span class="px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-xs font-medium border border-blue-500/30">
@@ -451,20 +282,19 @@
         </div>
 
         <div id="matches-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-          <!-- Populated dynamically by JS -->
-          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 animate-pulse">Loading matches...</div>
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 animate-pulse text-xs text-slate-400">Loading matches...</div>
         </div>
       </div>
     </div>
 
     <!-- ================================================================= -->
-    <!-- TAB 3: TEAMS & SQUADS -->
+    <!-- TAB 3: TEAMS & SQUADS                                             -->
     <!-- ================================================================= -->
     <div id="tab-teams" class="tab-content hidden space-y-4">
       <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-xl">
         <div class="pb-4 border-b border-slate-800">
-          <h2 class="text-xl font-bold text-white">Participating Teams & Squads (6)</h2>
-          <p class="text-xs text-slate-400">Click a team to view players, captains, and profile photos</p>
+          <h2 class="text-lg font-bold text-white">Participating Teams & Squads (6)</h2>
+          <p class="text-xs text-slate-400">Click a team to view player roster</p>
         </div>
 
         <!-- Team Selector Chips -->
@@ -480,372 +310,58 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- TAB 4: POSTER & WHATSAPP LOG -->
-    <!-- ================================================================= -->
-    <div id="tab-history" class="tab-content hidden space-y-4">
-      <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-xl">
-        <div class="flex items-center justify-between pb-4 border-b border-slate-800">
-          <div>
-            <h2 class="text-xl font-bold text-white">Poster Generation & WhatsApp Dispatch Log</h2>
-            <p class="text-xs text-slate-400">Chronological history of generated posters, delta checks, and deliveries</p>
-          </div>
-          <button onclick="loadPosterHistory()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 rounded-lg border border-slate-700 flex items-center gap-1">
-            <i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh Log
-          </button>
-        </div>
-
-        <div class="overflow-x-auto mt-4">
-          <table class="w-full text-left text-xs text-slate-300">
-            <thead class="bg-slate-950/60 uppercase font-semibold text-slate-400 border-b border-slate-800">
-              <tr>
-                <th class="py-3 px-4">Time</th>
-                <th class="py-3 px-4">Score</th>
-                <th class="py-3 px-4">Status</th>
-                <th class="py-3 px-4">Reason / Dispatch Note</th>
-                <th class="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="history-table-body" class="divide-y divide-slate-800/60 font-mono">
-              <tr>
-                <td colspan="5" class="py-4 px-4 text-center text-slate-500">Loading history...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ================================================================= -->
-    <!-- TAB 5: SETTINGS & ANTI-BLOCK CONTROLS -->
+    <!-- TAB 4: SETTINGS & CONTROLS                                        -->
     <!-- ================================================================= -->
     <div id="tab-settings" class="tab-content hidden space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        <!-- POLICIES & ANTI-BLOCK EXPLANATION -->
-        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-xl">
-          <div class="flex items-center gap-2 pb-3 border-b border-slate-800 mb-4">
+        <!-- Anti-Block Info -->
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-xl space-y-4">
+          <div class="flex items-center gap-2 pb-3 border-b border-slate-800">
             <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400"></i>
-            <h3 class="font-bold text-base text-white">CricHeroes Anti-Block & Compliance</h3>
+            <h3 class="font-bold text-sm text-white">CricHeroes Anti-Block Protection</h3>
           </div>
 
-          <div class="space-y-4 text-xs text-slate-300 leading-relaxed">
-            <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
-              <div class="font-semibold text-emerald-400 mb-1">✓ Cloudflare WAF Bypass via Chrome TLS Impersonation</div>
-              <p class="text-slate-400">CricHeroes returns HTTP 403 to raw scripts. This system impersonates real Chrome TLS fingerprints and HTTP/2 headers using curl_cffi, avoiding blocks without heavy browsers.</p>
+          <div class="space-y-3 text-xs text-slate-300 leading-relaxed">
+            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+              <div class="font-semibold text-emerald-400 mb-0.5">✓ Chrome TLS Impersonation</div>
+              <p class="text-slate-400">Bypasses Cloudflare WAF by replicating authentic Chrome 120 browser handshakes via curl_cffi.</p>
             </div>
 
-            <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
-              <div class="font-semibold text-blue-400 mb-1">✓ Polite Ingestion & Local Shared Cache</div>
-              <p class="text-slate-400">The local server queries CricHeroes only once per configured interval. All devices on your local network connect to this local server, generating 0 extra load on CricHeroes.</p>
-            </div>
-
-            <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
-              <div class="font-semibold text-amber-400 mb-1">✓ Delta Check (Anti-Spam & Anti-Ban)</div>
-              <p class="text-slate-400">Even with a 1-minute interval, no poster or message is sent if the score hasn't changed. This protects your WhatsApp number from being flagged as a spam bot.</p>
+            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+              <div class="font-semibold text-blue-400 mb-0.5">✓ 10s Smart Ingestion Cache</div>
+              <p class="text-slate-400">Caches requests in memory to eliminate HTTP 429 rate limit bans while keeping ball updates instantaneous.</p>
             </div>
           </div>
         </div>
 
-        <!-- WHATSAPP & CADENCE SETTINGS FORM -->
-        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-xl">
-          <div class="flex items-center gap-2 pb-3 border-b border-slate-800 mb-4">
-            <i data-lucide="message-square" class="w-5 h-5 text-emerald-400"></i>
-            <h3 class="font-bold text-base text-white">WhatsApp Dispatch Configuration</h3>
+        <!-- Simulation Settings -->
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-xl space-y-4">
+          <div class="flex items-center gap-2 pb-3 border-b border-slate-800">
+            <i data-lucide="sliders" class="w-5 h-5 text-purple-400"></i>
+            <h3 class="font-bold text-sm text-white">Simulation Controls</h3>
           </div>
 
           <form id="settings-form" onsubmit="saveSettings(event)" class="space-y-4 text-xs">
-            <!-- Auto Dispatch Toggle -->
-            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-800">
+            <div class="flex items-center justify-between p-3.5 rounded-xl bg-slate-950 border border-slate-800">
               <div>
-                <label for="wa-enabled" class="font-semibold text-slate-200 block">Auto-Dispatch to WhatsApp</label>
-                <span class="text-[11px] text-slate-400">Automatically broadcast poster and score updates</span>
-              </div>
-              <input type="checkbox" id="wa-enabled" class="w-5 h-5 rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-0">
-            </div>
-
-            <!-- Cadence Selector -->
-            <div>
-              <label class="font-semibold text-slate-300 block mb-1">Dispatch Trigger Mode</label>
-              <select id="wa-cadence" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
-                <option value="1min_delta">Every 1 Minute (With Delta Check: only if score changed)</option>
-                <option value="over_end">End of Every Over Only (Safest for WhatsApp)</option>
-              </select>
-            </div>
-
-            <!-- Group Name -->
-            <div>
-              <label class="font-semibold text-slate-300 block mb-1">WhatsApp Group Name</label>
-              <input type="text" id="wa-group" placeholder="e.g. VLV Cricket 2026" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
-            </div>
-
-            <!-- Webhook Gateway (Optional) -->
-            <div>
-              <label class="font-semibold text-slate-300 block mb-1">WhatsApp Webhook Gateway URL (Optional)</label>
-              <input type="url" id="wa-webhook" placeholder="e.g. http://localhost:3000/send-media or Green-API" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
-              <span class="text-[10px] text-slate-500 mt-1 block">Leave empty to use 1-Click WhatsApp Web Share links</span>
-            </div>
-
-            <!-- Simulation Mode Toggle -->
-            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-800">
-              <div>
-                <label for="sim-enabled" class="font-semibold text-purple-300 block">Simulation Mode (Demo Data)</label>
-                <span class="text-[11px] text-slate-400">Simulate match outcomes before tournament begins</span>
+                <label for="sim-enabled" class="font-semibold text-purple-300 block">Simulation Mode</label>
+                <span class="text-[11px] text-slate-400">Simulate balls when no real match is live</span>
               </div>
               <input type="checkbox" id="sim-enabled" class="w-5 h-5 rounded bg-slate-800 border-slate-700 text-purple-500 focus:ring-0">
             </div>
 
             <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-md transition">
-              Save Settings
+              Save Simulation Setting
             </button>
           </form>
         </div>
+
       </div>
     </div>
 
-    <!-- ================================================================= -->
-    <!-- TAB 6: PRISM LIVE STUDIO OVERLAY HUB                              -->
-    <!-- ================================================================= -->
-    <div id="tab-ticker" class="tab-content hidden space-y-6">
-      
-      <!-- HEADER BANNER -->
-      <div class="bg-gradient-to-r from-rose-950/60 via-slate-900 to-indigo-950/50 p-6 rounded-2xl border border-rose-500/30 shadow-xl flex flex-wrap items-center justify-between gap-4">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center text-xl shadow-inner">
-            <i data-lucide="video" class="w-6 h-6"></i>
-          </div>
-          <div>
-            <h2 class="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-              PRISM Live Studio Cricket Overlay
-              <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                Transparent Lower-Third
-              </span>
-            </h2>
-            <p class="text-xs sm:text-sm text-slate-400 mt-1">
-              Broadcast TV-grade live score bug with real-time runs, wickets, batters, bowler, ball pills, and 4/6/W celebration animations.
-            </p>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <a href="/ticker" target="_blank" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 flex items-center gap-1.5 transition">
-            <i data-lucide="external-link" class="w-4 h-4"></i> Open Fullscreen Overlay
-          </a>
-        </div>
-      </div>
-
-      <!-- WATERMARK ADJUSTMENT & POSITION CONTROLS -->
-      <div class="bg-gradient-to-r from-amber-950/40 via-slate-900 to-slate-900 border border-amber-500/30 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 text-xs">
-        <div class="flex items-center gap-3">
-          <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-base shrink-0">💡</span>
-          <div>
-            <div class="font-bold text-slate-200 text-sm">PRISM Live Logo Covering the Ticker? Two Instant Fixes:</div>
-            <p class="text-slate-400 mt-0.5">
-              <b>Fix 1 (Permanent):</b> In PRISM app, tap <b>Settings ⚙️ $\rightarrow$ Watermark $\rightarrow$ Toggle OFF</b> (100% free, removes logo completely).<br>
-              <b>Fix 2 (Positioning):</b> Use the elevated bottom or top screen bar so the watermark never touches the graphics.
-            </p>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <span class="font-bold text-slate-300">Position:</span>
-          <div class="inline-flex rounded-xl border border-slate-700 bg-slate-950 p-1">
-            <button onclick="setPreviewPosition('bottom')" id="btn-pos-bottom" class="px-3 py-1.5 rounded-lg font-bold text-xs text-blue-400 bg-slate-800 shadow-sm transition">
-              Bottom (Elevated)
-            </button>
-            <button onclick="setPreviewPosition('top')" id="btn-pos-top" class="px-3 py-1.5 rounded-lg font-bold text-xs text-slate-400 hover:text-slate-200 transition">
-              Top Bar (?pos=top)
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- LIVE PREVIEW CAMERA SIMULATOR -->
-      <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-xl space-y-3">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <i data-lucide="tv" class="w-4 h-4 text-blue-400"></i>
-            <h3 class="font-bold text-sm text-slate-200">Live Camera Stream Preview</h3>
-            <span class="text-[11px] text-slate-500">(How it appears overlaid over your live match video)</span>
-          </div>
-          <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-950 border border-slate-800 text-slate-400">1920 × 1080 Transparent</span>
-        </div>
-
-        <!-- Camera Canvas Simulator with Live Ticker inside -->
-        <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-slate-800 shadow-2xl bg-gradient-to-b from-sky-900/40 via-emerald-950/60 to-slate-950 flex flex-col justify-end">
-          <!-- Background Ground Mockup -->
-          <div class="absolute inset-0 opacity-40 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-600/30 via-slate-900/60 to-slate-950 pointer-events-none"></div>
-          <div class="absolute top-4 left-4 flex items-center gap-2 bg-black/60 px-3 py-1.5 rounded-lg border border-white/10 text-xs font-mono text-slate-300">
-            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-            <span>PRISM LIVE CAM: 1080p 60fps</span>
-          </div>
-
-          <!-- Embedded Real-Time Ticker Iframe -->
-          <iframe id="preview-ticker-iframe" src="/ticker" class="w-full h-44 sm:h-52 border-0 bg-transparent relative z-10 pointer-events-none"></iframe>
-        </div>
-      </div>
-
-      <!-- SHARABLE LINKS GRID -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-        <!-- LINK CARD 1: LOCAL WI-FI / HOTSPOT LINK -->
-        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-xl space-y-4">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-            <div class="flex items-center gap-2.5">
-              <div class="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">
-                <i data-lucide="wifi" class="w-5 h-5"></i>
-              </div>
-              <div>
-                <h4 class="font-bold text-sm text-white">Local Wi-Fi / Hotspot Link</h4>
-                <div class="text-[11px] text-slate-400">Best when phone & laptop share the same Wi-Fi</div>
-              </div>
-            </div>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">ZERO LATENCY</span>
-          </div>
-
-          <div>
-            <label class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">PRISM Web Widget URL</label>
-            <div class="flex items-center gap-2">
-              <input type="text" id="input-local-ticker-url" readonly value="http://192.168.1.13:8000/ticker" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-amber-300 font-mono focus:outline-none select-all">
-              <button onclick="copyToClipboard('input-local-ticker-url')" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow">
-                <i data-lucide="copy" class="w-4 h-4"></i> Copy
-              </button>
-            </div>
-          </div>
-
-          <!-- Share with Mobile via WhatsApp & QR -->
-          <div class="flex flex-col sm:flex-row items-center gap-4 bg-slate-950 p-3.5 rounded-xl border border-slate-800">
-            <div class="shrink-0 text-center">
-              <img id="qr-local-ticker" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=http%3A%2F%2F192.168.1.13%3A8000%2Fticker" alt="Local Ticker QR" class="w-24 h-24 rounded-lg border border-slate-700 bg-white p-1 shadow">
-              <span class="text-[10px] text-slate-400 font-medium block mt-1">Scan with phone</span>
-            </div>
-            <div class="space-y-2 flex-1 text-left">
-              <div class="text-xs font-semibold text-slate-200">How to get this onto your phone:</div>
-              <p class="text-[11px] text-slate-400 leading-relaxed">
-                Scan this QR code using your phone's camera, or send it to your phone via WhatsApp:
-              </p>
-              <button onclick="shareUrlViaWhatsApp('input-local-ticker-url')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow">
-                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Send to Phone via WhatsApp
-              </button>
-            </div>
-          </div>
-
-          <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 text-xs text-slate-400 space-y-1">
-            <div class="font-semibold text-slate-300 flex items-center gap-1.5">
-              <i data-lucide="info" class="w-3.5 h-3.5 text-blue-400"></i> Requirement:
-            </div>
-            <p>Your streaming phone must be on the same Wi-Fi or connected to your laptop's mobile hotspot.</p>
-          </div>
-        </div>
-
-        <!-- LINK CARD 2: PUBLIC 4G/5G CLOUDFLARE TUNNEL -->
-        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-xl space-y-4">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-            <div class="flex items-center gap-2.5">
-              <div class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold">
-                <i data-lucide="globe" class="w-5 h-5"></i>
-              </div>
-              <div>
-                <h4 class="font-bold text-sm text-white">4G / 5G Cellular Ground Link</h4>
-                <div class="text-[11px] text-slate-400">Best for streaming outdoors on mobile data</div>
-              </div>
-            </div>
-            <span id="tunnel-status-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700">OFFLINE</span>
-          </div>
-
-          <div>
-            <label class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Public HTTPS Tunnel URL</label>
-            <div class="flex items-center gap-2">
-              <input type="text" id="input-public-ticker-url" readonly placeholder="Click 'Launch 4G Tunnel' below" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-purple-300 font-mono focus:outline-none select-all">
-              <button id="btn-copy-public-url" onclick="copyToClipboard('input-public-ticker-url')" disabled class="px-4 py-2.5 bg-purple-600 disabled:opacity-40 hover:bg-purple-500 active:scale-95 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow">
-                <i data-lucide="copy" class="w-4 h-4"></i> Copy
-              </button>
-            </div>
-          </div>
-
-          <!-- Share Public Link with Mobile via WhatsApp & QR -->
-          <div id="box-public-qr" class="hidden flex flex-col sm:flex-row items-center gap-4 bg-slate-950 p-3.5 rounded-xl border border-purple-500/30">
-            <div class="shrink-0 text-center">
-              <img id="qr-public-ticker" src="" alt="Public Ticker QR" class="w-24 h-24 rounded-lg border border-purple-400/40 bg-white p-1 shadow">
-              <span class="text-[10px] text-purple-300 font-medium block mt-1">Scan with phone</span>
-            </div>
-            <div class="space-y-2 flex-1 text-left">
-              <div class="text-xs font-semibold text-purple-200">Outdoor 4G/5G Link Ready!</div>
-              <p class="text-[11px] text-slate-400 leading-relaxed">
-                Scan this QR code with your phone or click below to send it to your WhatsApp chat:
-              </p>
-              <button onclick="shareUrlViaWhatsApp('input-public-ticker-url')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow">
-                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Send to Phone via WhatsApp
-              </button>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <button id="btn-toggle-tunnel" onclick="toggleCloudflareTunnel()" class="flex-1 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2">
-              <i data-lucide="zap" class="w-4 h-4"></i>
-              <span id="btn-tunnel-label">Launch 4G/5G Cloudflare Tunnel</span>
-            </button>
-          </div>
-
-          <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 text-xs text-slate-400 space-y-1">
-            <div class="font-semibold text-slate-300 flex items-center gap-1.5">
-              <i data-lucide="shield-check" class="w-3.5 h-3.5 text-purple-400"></i> Free & Secure Tunnel:
-            </div>
-            <p>Uses your PC's built-in Cloudflare binary to generate a safe public HTTPS link reachable anywhere on 4G/5G.</p>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- STEP-BY-STEP PRISM LIVE STUDIO MOBILE GUIDE -->
-      <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-xl space-y-4">
-        <div class="flex items-center gap-2 pb-3 border-b border-slate-800">
-          <i data-lucide="smartphone" class="w-5 h-5 text-rose-400"></i>
-          <h3 class="font-bold text-base text-white">How to Set Up in PRISM Live Studio Mobile App (Android & iPhone)</h3>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
-          <!-- Step 1 -->
-          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 space-y-2">
-            <div class="w-7 h-7 rounded-lg bg-rose-500/20 text-rose-400 font-black flex items-center justify-center text-sm">1</div>
-            <div class="font-bold text-slate-200">Open App & Camera</div>
-            <p class="text-slate-400 leading-relaxed">Launch <b>PRISM Live Studio</b> on your phone. Select Camera mode and swipe the screen to the right to open the <b>My Studio</b> drawer.</p>
-          </div>
-
-          <!-- Step 2 -->
-          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 space-y-2">
-            <div class="w-7 h-7 rounded-lg bg-rose-500/20 text-rose-400 font-black flex items-center justify-center text-sm">2</div>
-            <div class="font-bold text-slate-200">Add Web Widget</div>
-            <p class="text-slate-400 leading-relaxed">Tap the <b>+ (Add)</b> button $\rightarrow$ choose <b>Widget</b> $\rightarrow$ select <b>Web</b> (Browser Source).</p>
-          </div>
-
-          <!-- Step 3 -->
-          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 space-y-2">
-            <div class="w-7 h-7 rounded-lg bg-rose-500/20 text-rose-400 font-black flex items-center justify-center text-sm">3</div>
-            <div class="font-bold text-slate-200">Paste Ticker Link</div>
-            <p class="text-slate-400 leading-relaxed">Paste the copied URL (Local Wi-Fi or 4G Tunnel). Tap <b>Save</b>. The transparent ticker appears over your camera!</p>
-          </div>
-
-          <!-- Step 4 -->
-          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 space-y-2">
-            <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 font-black flex items-center justify-center text-sm">4</div>
-            <div class="font-bold text-slate-200">Position & Go Live</div>
-            <p class="text-slate-400 leading-relaxed">Drag the ticker to the bottom of the screen. Tap <b>Go Live</b> to stream to YouTube or Facebook with live cricket scores!</p>
-          </div>
-        </div>
-      </div>
-
-    </div>
   </main>
 
-  <!-- FOOTER -->
-  <footer class="bg-slate-900 border-t border-slate-800 py-4 mt-auto text-center text-xs text-slate-500">
-    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-      <div>Local Scoreboard Hub • Single-Source Polite Scraper • CricHeroes Compliant</div>
-      <div>Tournament ID: <a href="https://cricheroes.com/tournament/2169387/vlv-ganapti-mens-cricket-tournament-2026/matches/upcoming-matches" target="_blank" class="text-blue-400 hover:underline">2169387 on CricHeroes</a></div>
-    </div>
-  </footer>
-
-  <!-- Dashboard Script -->
   <script src="/static/js/dashboard.js"></script>
 </body>
 </html>

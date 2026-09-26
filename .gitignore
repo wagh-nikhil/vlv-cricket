@@ -9,6 +9,4 @@ env/
 *.log
 .system_generated/
 scratch/
-output/commentary/
-output/posters/*.png
-!output/posters/latest_poster.png
+output/

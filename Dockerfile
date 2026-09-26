@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY --chown=user:user . $HOME/app
 
 # Create necessary runtime directories
-RUN mkdir -p $HOME/app/data $HOME/app/output/posters $HOME/app/output/commentary
+RUN mkdir -p $HOME/app/data
 
 # Expose official Hugging Face Spaces port
 EXPOSE 7860

@@ -1,18 +1,18 @@
-// Dashboard JavaScript for VLV Cricket Hub
+// Minimal & Ultra-Fast Dashboard JavaScript for VLV Cricket Hub
 
 let currentTeamsData = [];
 let activeTeamIndex = 0;
 let eventSource = null;
 let appState = {};
 
-// Initialize on DOM ready - Fast Mobile Load
+// Initialize on DOM ready
 document.addEventListener("DOMContentLoaded", () => {
   if (window.lucide) {
     lucide.createIcons();
   }
   loadFullState();
   initLiveStream();
-  // Heartbeat polling every 3s to guarantee zero-lag live updates on mobile/tunnels
+  // 3-second heartbeat polling ensures zero-lag updates on mobile/tunnels
   setInterval(pollDashboardState, 3000);
 });
 
@@ -43,15 +43,11 @@ function switchTab(tabId) {
     activeBtn.classList.remove("text-slate-400", "border-transparent");
   }
 
-  // Lazy load tab contents only when accessed
+  // Lazy load tab data on-demand only when opened
   if (tabId === "tab-matches") {
     loadUpcomingMatches();
   } else if (tabId === "tab-teams") {
     loadTeamsAndSquads();
-  } else if (tabId === "tab-history") {
-    loadPosterHistory();
-  } else if (tabId === "tab-ticker") {
-    loadNetworkAndTunnelInfo();
   }
 
   if (window.lucide) lucide.createIcons();
@@ -77,7 +73,7 @@ async function onMatchSourceChange(value) {
   if (value === "simulator") {
     payload = { match_id: 27016163, source: "simulator" };
   } else if (value === "tournament_2169387") {
-    payload = { match_id: 27016163, source: "tournament_2169387" };
+    payload = { match_id: 2169387, source: "tournament_2169387" };
   } else {
     payload = { match_id: parseInt(value), source: "real_cricheroes" };
   }
@@ -103,11 +99,10 @@ async function trackCustomMatch() {
   const input = document.getElementById("custom-match-id");
   const matchId = parseInt(input.value);
   if (!matchId || isNaN(matchId)) {
-    alert("Please enter a valid numeric CricHeroes Match ID (e.g. 27109491)");
+    alert("Please enter a valid numeric CricHeroes Match ID (e.g. 27303530)");
     return;
   }
 
-  // Add option to select if not present
   const select = document.getElementById("match-source-select");
   let exists = false;
   for (let opt of select.options) {
@@ -133,57 +128,50 @@ function updateControlsUI(state) {
   const modeLabel = document.getElementById("mode-label");
   const simBanner = document.getElementById("sim-banner");
   const simCheckbox = document.getElementById("sim-enabled");
-  const waCheckbox = document.getElementById("wa-enabled");
-  const waCadence = document.getElementById("wa-cadence");
-  const waGroup = document.getElementById("wa-group");
   const autoStepLabel = document.getElementById("auto-step-label");
   const sourceSelect = document.getElementById("match-source-select");
   const sourceTag = document.getElementById("source-tag");
 
   if (state.live_source === "simulator" || state.simulation_mode) {
-    modeBadge.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-purple-500/20 text-purple-300 border border-purple-500/40";
-    modeLabel.textContent = "Simulation Mode Active";
+    if (modeBadge) {
+      modeBadge.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-purple-500/20 text-purple-300 border border-purple-500/40";
+      modeLabel.textContent = "Simulation Mode Active";
+    }
     if (simBanner) simBanner.classList.remove("hidden");
     if (sourceTag) {
       sourceTag.textContent = "🎮 SIMULATION DEMO";
-      sourceTag.className = "px-2.5 py-1 rounded text-[11px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30";
+      sourceTag.className = "px-2 py-0.5 rounded text-[11px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30";
     }
     if (sourceSelect) sourceSelect.value = "simulator";
   } else {
-    modeBadge.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
-    modeLabel.textContent = "Live CricHeroes Feed Active";
+    if (modeBadge) {
+      modeBadge.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+      modeLabel.textContent = "Live CricHeroes Active";
+    }
     if (simBanner) simBanner.classList.add("hidden");
     if (sourceTag) {
       sourceTag.textContent = "● REAL CRICHEROES LIVE";
-      sourceTag.className = "px-2.5 py-1 rounded text-[11px] font-bold bg-red-500/20 text-red-400 border border-red-500/30";
-    }
-    if (sourceSelect && state.active_match_id) {
-      sourceSelect.value = String(state.active_match_id);
+      sourceTag.className = "px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
     }
   }
 
-  if (simCheckbox) simCheckbox.checked = state.live_source === "simulator";
-  if (waCheckbox) waCheckbox.checked = state.whatsapp_enabled;
-  if (waCadence) waCadence.value = state.whatsapp_cadence;
-  if (waGroup) waGroup.value = state.whatsapp_group;
-
-  if (autoStepLabel) {
-    autoStepLabel.textContent = state.sim_auto_step ? `Auto: ON (${state.sim_speed_seconds}s)` : "Auto: OFF";
-  }
+  if (simCheckbox) simCheckbox.checked = state.simulation_mode || false;
+  if (autoStepLabel) autoStepLabel.textContent = state.sim_auto_step ? "Auto: ON (15s)" : "Auto: OFF";
 }
 
-// Live Scorecard UI Updater
+// Live Scorecard UI Updates
 function updateLiveScorecardUI(match) {
-  if (!match) return;
+  if (!match || match.status === "idle") return;
 
   try {
-    const teamA = match.team_a || "Team A";
-    const teamB = match.team_b || "Team B";
-    const batting = match.batting_team || teamA;
-
     const matchupEl = document.getElementById("team-matchup");
-    if (matchupEl) matchupEl.innerHTML = `${teamA} <span class="text-slate-500 text-lg font-normal">vs</span> ${teamB}`;
+    if (matchupEl) {
+      const a = match.team_a || "Team A";
+      const b = match.team_b || "Team B";
+      matchupEl.innerHTML = `${a} <span class="text-slate-500 text-lg font-normal">vs</span> ${b}`;
+    }
 
+    const batting = match.batting_team || match.team_a || "Batting";
     const badgeEl = document.getElementById("batting-badge");
     if (badgeEl) badgeEl.textContent = `BATTING: ${batting}`;
 
@@ -191,7 +179,7 @@ function updateLiveScorecardUI(match) {
     if (scoreEl) scoreEl.textContent = `${match.runs !== undefined ? match.runs : 0}/${match.wickets !== undefined ? match.wickets : 0}`;
 
     const oversEl = document.getElementById("overs-display");
-    if (oversEl) oversEl.textContent = `(${match.overs || "0.0"} / ${match.overs_limit || 20} ov)`;
+    if (oversEl) oversEl.textContent = `(${match.overs || "0.0"} / ${match.overs_limit || 8} ov)`;
     
     const crrEl = document.getElementById("crr-display");
     if (crrEl) crrEl.textContent = match.crr || "0.00";
@@ -202,9 +190,8 @@ function updateLiveScorecardUI(match) {
     const rrrEl = document.getElementById("rrr-display");
     if (rrrEl) rrrEl.textContent = match.rrr || "-";
 
-    // Match Venue / Round
     const roundEl = document.getElementById("match-round");
-    if (roundEl && match.round_name) roundEl.textContent = `${match.round_name} (${match.overs_limit || 20} Overs)`;
+    if (roundEl && match.round_name) roundEl.textContent = `${match.round_name} (${match.overs_limit || 8} Overs)`;
 
     const groundEl = document.getElementById("match-ground");
     if (groundEl && match.ground_name) {
@@ -212,7 +199,6 @@ function updateLiveScorecardUI(match) {
       if (span) span.textContent = match.ground_name;
     }
 
-    // Equation Banner
     const eqBanner = document.getElementById("equation-banner");
     if (eqBanner && match.equation) {
       eqBanner.textContent = "⚡ " + match.equation.toUpperCase();
@@ -265,72 +251,33 @@ function updateLiveScorecardUI(match) {
     }
 
     // Bowler Card
+    const bwName = document.getElementById("bowler-name");
+    const bwFigures = document.getElementById("bowler-figures");
+    const bwEcon = document.getElementById("bowler-econ");
     if (match.bowler) {
-      const bwNameEl = document.getElementById("bowler-name");
-      if (bwNameEl) bwNameEl.textContent = match.bowler.name || "Bowler";
-
-      const bwFigEl = document.getElementById("bowler-figures");
-      const bw = match.bowler;
-      if (bwFigEl) bwFigEl.textContent = `${bw.overs || "0.0"} - ${bw.maidens || 0} - ${bw.runs || 0} - ${bw.wickets || 0}`;
-
-      const bwEconEl = document.getElementById("bowler-econ");
-      if (bwEconEl) bwEconEl.textContent = bw.econ || "0.0";
+      if (bwName) bwName.textContent = match.bowler.name || "Bowler";
+      if (bwFigures) bwFigures.textContent = `${match.bowler.overs || "0.0"} - ${match.bowler.maidens || 0} - ${match.bowler.runs || 0} - ${match.bowler.wickets || 0}`;
+      if (bwEcon) bwEcon.textContent = match.bowler.econ || "0.0";
     }
 
-    // WhatsApp Pre-filled Link
-    const waDirectLink = document.getElementById("wa-direct-link");
-    if (waDirectLink) {
-      const text = encodeURIComponent(
-        `🏆 *${match.tournament_name || "CricHeroes Live Match"}*\n` +
-        `⚔️ *${teamA} vs ${teamB}*\n` +
-        `🏏 *${batting}: ${match.runs || 0}/${match.wickets || 0}* (${match.overs || "0.0"}/${match.overs_limit || 20} ov)\n` +
-        `⚡ CRR: ${match.crr || "0.00"} | Target: ${match.target || "-"}\n` +
-        `🔥 *${match.equation || ""}*`
-      );
-      waDirectLink.href = `https://api.whatsapp.com/send?text=${text}`;
-    }
-
-    // Update Poster Preview and Commentary only when score or overs change
-    const posterKey = `${match.match_id}_${match.overs}_${match.runs}_${match.wickets}`;
-    if (window._lastPosterKey !== posterKey) {
-      window._lastPosterKey = posterKey;
-      refreshPosterImage();
-      loadLatestCommentary(true);
-    }
   } catch (err) {
-    console.error("Error in updateLiveScorecardUI:", err);
+    console.error("Error updating scorecard UI:", err);
   }
 }
 
-function refreshPosterImage() {
-  const posterImg = document.getElementById("poster-preview");
-  if (posterImg) {
-    posterImg.src = `/posters/latest_poster.png?t=${Date.now()}`;
-  }
-  const timestamp = document.getElementById("poster-timestamp");
-  if (timestamp) {
-    timestamp.textContent = "Updated " + new Date().toLocaleTimeString();
-  }
-}
-
-// SSE Live Stream Connection
+// Server-Sent Events (SSE) Listener
 function initLiveStream() {
   if (eventSource) eventSource.close();
-
   eventSource = new EventSource("/api/live/stream");
+
   eventSource.onmessage = (e) => {
     try {
       const data = JSON.parse(e.data);
-      if (data && data.status !== "idle") {
-        updateLiveScorecardUI(data);
-      }
-    } catch (err) {
-      console.error("SSE parse error:", err);
-    }
+      updateLiveScorecardUI(data);
+    } catch (err) {}
   };
 
   eventSource.onerror = () => {
-    console.warn("SSE stream disconnected. Retrying in 5s...");
     eventSource.close();
     setTimeout(initLiveStream, 5000);
   };
@@ -348,7 +295,7 @@ async function loadUpcomingMatches() {
     const matches = data.upcoming_matches || [];
 
     if (matches.length === 0) {
-      matchesGrid.innerHTML = `<div class="col-span-3 text-center py-8 text-slate-500">No upcoming matches found. Click 'Sync CricHeroes' above.</div>`;
+      matchesGrid.innerHTML = `<div class="col-span-3 text-center py-8 text-slate-500">No upcoming matches found. Click 'Sync' above.</div>`;
       return;
     }
 
@@ -415,7 +362,7 @@ async function trackCustomMatchId(matchId) {
   select.value = matchId;
   await onMatchSourceChange(matchId);
   switchTab('tab-live');
-  alert(`Now tracking Match #${matchId} on PRISM Live ticker!`);
+  alert(`Now tracking Match #${matchId} on live scoreboard & PRISM ticker!`);
 }
 
 // Teams & Squads Loader
@@ -429,21 +376,13 @@ async function loadTeamsAndSquads() {
     chipsContainer.innerHTML = "";
     currentTeamsData.forEach((team, idx) => {
       const btn = document.createElement("button");
-      btn.className = `px-4 py-2 rounded-xl text-xs font-bold border transition flex items-center gap-2 ${
+      btn.className = `px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition ${
         idx === activeTeamIndex 
-          ? "bg-blue-600 border-blue-500 text-white shadow-md shadow-blue-600/30" 
-          : "bg-slate-950 border-slate-800 text-slate-300 hover:bg-slate-800"
+          ? "bg-blue-600 text-white border-blue-500 shadow-md" 
+          : "bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700"
       }`;
-      btn.innerHTML = `
-        <img src="${team.team_logo || 'https://media.cricheroes.in/default/teamintital/AW.png'}" class="w-4 h-4 rounded-full" onerror="this.src='/static/images/team_default.png'">
-        <span>${team.team_name}</span>
-        <span class="text-[10px] opacity-75 font-normal">(${team.players ? team.players.length : 0})</span>
-      `;
-      btn.onclick = () => {
-        activeTeamIndex = idx;
-        renderActiveTeamSquad();
-        loadTeamsAndSquads(); // re-render chip styles
-      };
+      btn.textContent = team.team_name;
+      btn.onclick = () => selectTeam(idx);
       chipsContainer.appendChild(btn);
     });
 
@@ -451,6 +390,19 @@ async function loadTeamsAndSquads() {
   } catch (err) {
     console.error("Error loading teams:", err);
   }
+}
+
+function selectTeam(idx) {
+  activeTeamIndex = idx;
+  const chips = document.getElementById("team-chips").children;
+  for (let i = 0; i < chips.length; i++) {
+    if (i === idx) {
+      chips[i].className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold border bg-blue-600 text-white border-blue-500 shadow-md transition";
+    } else {
+      chips[i].className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold border bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700 transition";
+    }
+  }
+  renderActiveTeamSquad();
 }
 
 function renderActiveTeamSquad() {
@@ -463,7 +415,7 @@ function renderActiveTeamSquad() {
   const players = team.players || [];
   let html = `
     <div class="mb-4 flex items-center justify-between">
-      <h3 class="font-bold text-lg text-white">${team.team_name} Squad (${players.length} Players)</h3>
+      <h3 class="font-bold text-base text-white">${team.team_name} Squad (${players.length} Players)</h3>
     </div>
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
   `;
@@ -472,9 +424,9 @@ function renderActiveTeamSquad() {
     const photo = p.profile_photo || "https://media.cricheroes.in/default/user_profile.png";
     html += `
       <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-center flex flex-col items-center hover:border-slate-700 transition">
-        <img src="${photo}" class="w-14 h-14 rounded-full object-cover border-2 border-slate-800 mb-2" onerror="this.src='https://media.cricheroes.in/default/user_profile.png'">
+        <img src="${photo}" class="w-12 h-12 rounded-full object-cover border-2 border-slate-800 mb-2" onerror="this.src='https://media.cricheroes.in/default/user_profile.png'">
         <div class="font-bold text-xs text-white truncate w-full" title="${p.player_name}">${p.player_name}</div>
-        <div class="text-[10px] text-slate-500 mt-0.5">Player ID: ${p.player_id}</div>
+        <div class="text-[10px] text-slate-500 mt-0.5">ID: ${p.player_id}</div>
       </div>
     `;
   });
@@ -483,72 +435,7 @@ function renderActiveTeamSquad() {
   container.innerHTML = html;
 }
 
-// Poster History Loader
-async function loadPosterHistory() {
-  try {
-    const res = await fetch("/api/posters/history");
-    const history = await res.json();
-    const tbody = document.getElementById("history-table-body");
-    if (!tbody) return;
-
-    if (!history || history.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5" class="py-4 px-4 text-center text-slate-500">No poster history recorded yet.</td></tr>`;
-      return;
-    }
-
-    tbody.innerHTML = "";
-    history.slice().reverse().forEach(item => {
-      const timeStr = item.timestamp ? new Date(item.timestamp).toLocaleTimeString() : "-";
-      const tr = document.createElement("tr");
-      tr.className = "hover:bg-slate-950/40 transition";
-      const isSuccess = item.status === "success";
-      tr.innerHTML = `
-        <td class="py-3 px-4 text-slate-400">${timeStr}</td>
-        <td class="py-3 px-4 font-bold text-amber-400">${item.runs}/${item.wickets} (${item.overs} ov)</td>
-        <td class="py-3 px-4">
-          <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${isSuccess ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400'}">
-            ${item.status.toUpperCase()}
-          </span>
-        </td>
-        <td class="py-3 px-4 text-slate-300">${item.reason || "-"}</td>
-        <td class="py-3 px-4 text-right">
-          <a href="${item.share_url}" target="_blank" class="text-emerald-400 hover:underline text-xs">Share WA →</a>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  } catch (err) {
-    console.error("Error loading history:", err);
-  }
-}
-
-// User Action Handlers
-async function generatePosterNow() {
-  try {
-    const res = await fetch("/api/poster/generate", { method: "POST" });
-    const data = await res.json();
-    refreshPosterImage();
-    alert("Match poster generated successfully!");
-  } catch (err) {
-    alert("Failed to generate poster: " + err);
-  }
-}
-
-async function dispatchToWhatsApp() {
-  try {
-    const res = await fetch("/api/whatsapp/dispatch", { method: "POST" });
-    const data = await res.json();
-    loadPosterHistory();
-    if (data.share_url) {
-      window.open(data.share_url, "_blank");
-    } else {
-      alert("WhatsApp dispatch triggered: " + (data.reason || "Success"));
-    }
-  } catch (err) {
-    alert("Dispatch error: " + err);
-  }
-}
-
+// CricHeroes Sync
 async function syncCricHeroes() {
   const btn = document.getElementById("btn-sync");
   const statusEl = document.getElementById("sync-status");
@@ -559,7 +446,7 @@ async function syncCricHeroes() {
   try {
     const res = await fetch("/api/sync", { method: "POST" });
     const data = await res.json();
-    statusEl.textContent = "Synced (" + data.matches + " matches)";
+    statusEl.textContent = "Synced";
     statusEl.className = "text-emerald-400";
     loadUpcomingMatches();
     loadTeamsAndSquads();
@@ -600,7 +487,7 @@ async function toggleSimAuto() {
     body: JSON.stringify({
       enabled: appState.simulation_mode,
       auto_step: appState.sim_auto_step,
-      speed_seconds: appState.sim_speed_seconds || 15
+      speed_seconds: 15
     })
   });
   updateControlsUI(appState);
@@ -608,24 +495,9 @@ async function toggleSimAuto() {
 
 async function saveSettings(e) {
   e.preventDefault();
-  const enabled = document.getElementById("wa-enabled").checked;
-  const cadence = document.getElementById("wa-cadence").value;
-  const group = document.getElementById("wa-group").value;
-  const webhook = document.getElementById("wa-webhook").value;
   const simEnabled = document.getElementById("sim-enabled").checked;
 
   try {
-    await fetch("/api/whatsapp/settings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        enabled: enabled,
-        cadence: cadence,
-        group_name: group,
-        webhook_url: webhook
-      })
-    });
-
     await fetch("/api/simulator/toggle", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -635,224 +507,9 @@ async function saveSettings(e) {
         speed_seconds: 15
       })
     });
-
     alert("Settings saved successfully!");
     loadFullState();
   } catch (err) {
     alert("Failed to save settings: " + err);
-  }
-}
-
-// AI Voice Commentary Functions
-let lastCommentaryAudioUrl = "";
-let lastCommentaryOver = "";
-
-async function loadLatestCommentary(autoPlay = false) {
-  try {
-    const res = await fetch("/api/commentary/latest");
-    const data = await res.json();
-    if (data.text) {
-      const transcriptEl = document.getElementById("commentary-transcript");
-      if (transcriptEl) transcriptEl.textContent = `"${data.text}"`;
-    }
-    if (data.audio_url) {
-      const audioEl = document.getElementById("commentary-audio");
-      if (audioEl) {
-        if (lastCommentaryAudioUrl !== data.audio_url) {
-          lastCommentaryAudioUrl = data.audio_url;
-          audioEl.src = data.audio_url;
-          const autoPlayToggle = document.getElementById("auto-play-voice-toggle");
-          if (autoPlay && autoPlayToggle && autoPlayToggle.checked) {
-            audioEl.play().catch(e => console.log("Auto-play prevented by browser policy:", e));
-          }
-        }
-      }
-    }
-  } catch (err) {
-    console.error("Error loading commentary:", err);
-  }
-}
-
-async function triggerManualCommentary() {
-  const transcriptEl = document.getElementById("commentary-transcript");
-  if (transcriptEl) transcriptEl.textContent = "🎙️ Synthesizing AI broadcast commentary...";
-  try {
-    const res = await fetch("/api/commentary/generate", { method: "POST" });
-    const data = await res.json();
-    if (data.text && transcriptEl) {
-      transcriptEl.textContent = `"${data.text}"`;
-    }
-    if (data.audio_url) {
-      const audioEl = document.getElementById("commentary-audio");
-      if (audioEl) {
-        audioEl.src = data.audio_url;
-        audioEl.play().catch(e => console.log("Audio play error:", e));
-      }
-    }
-  } catch (err) {
-    console.error("Error generating commentary:", err);
-    if (transcriptEl) transcriptEl.textContent = "Failed to generate commentary.";
-  }
-}
-
-// PRISM Live Studio & Tunnel Management
-let activeTunnelStatus = null;
-
-async function loadNetworkAndTunnelInfo() {
-  try {
-    const res = await fetch("/api/network-info");
-    const data = await res.json();
-    
-    // Update Local URL displays
-    const quickUrlEl = document.getElementById("quick-ticker-url");
-    if (quickUrlEl) quickUrlEl.textContent = data.local_ticker_url;
-
-    const inputLocalEl = document.getElementById("input-local-ticker-url");
-    if (inputLocalEl) inputLocalEl.value = data.local_ticker_url;
-
-    const qrLocal = document.getElementById("qr-local-ticker");
-    if (qrLocal && data.local_ticker_url) {
-      qrLocal.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(data.local_ticker_url)}`;
-    }
-
-    // Update Tunnel Status
-    updateTunnelUI(data.tunnel);
-  } catch (err) {
-    console.error("Error loading network info:", err);
-  }
-}
-
-function updateTunnelUI(tunnel) {
-  activeTunnelStatus = tunnel;
-  const statusBadge = document.getElementById("tunnel-status-badge");
-  const inputPublic = document.getElementById("input-public-ticker-url");
-  const btnCopyPublic = document.getElementById("btn-copy-public-url");
-  const btnTunnelLabel = document.getElementById("btn-tunnel-label");
-  const qrPublic = document.getElementById("qr-public-ticker");
-  const boxPublicQr = document.getElementById("box-public-qr");
-
-  if (!statusBadge || !inputPublic) return;
-
-  if (tunnel && tunnel.running && tunnel.ticker_url) {
-    statusBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
-    statusBadge.textContent = "ONLINE (PUBLIC 4G/5G)";
-    inputPublic.value = tunnel.ticker_url;
-    if (btnCopyPublic) btnCopyPublic.disabled = false;
-    if (btnTunnelLabel) btnTunnelLabel.textContent = "Stop Cloudflare Tunnel";
-    if (qrPublic) {
-      qrPublic.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(tunnel.ticker_url)}`;
-    }
-    if (boxPublicQr) boxPublicQr.classList.remove("hidden");
-  } else {
-    statusBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700";
-    statusBadge.textContent = "OFFLINE";
-    inputPublic.value = "";
-    inputPublic.placeholder = "Click 'Launch 4G Tunnel' below";
-    if (btnCopyPublic) btnCopyPublic.disabled = true;
-    if (btnTunnelLabel) btnTunnelLabel.textContent = "Launch 4G/5G Cloudflare Tunnel";
-    if (boxPublicQr) boxPublicQr.classList.add("hidden");
-  }
-  if (window.lucide) lucide.createIcons();
-}
-
-async function toggleCloudflareTunnel() {
-  const btnTunnelLabel = document.getElementById("btn-tunnel-label");
-  const isRunning = activeTunnelStatus && activeTunnelStatus.running;
-
-  if (btnTunnelLabel) {
-    btnTunnelLabel.textContent = isRunning ? "Stopping Tunnel..." : "Starting Cloudflare Tunnel...";
-  }
-
-  try {
-    const endpoint = isRunning ? "/api/tunnel/stop" : "/api/tunnel/start";
-    const res = await fetch(endpoint, { method: "POST" });
-    const data = await res.json();
-    
-    if (data.status === "online" && data.ticker_url) {
-      updateTunnelUI({
-        available: true,
-        running: true,
-        public_url: data.public_url,
-        ticker_url: data.ticker_url
-      });
-    } else {
-      setTimeout(loadNetworkAndTunnelInfo, 2500);
-    }
-  } catch (err) {
-    console.error("Error toggling tunnel:", err);
-    alert("Error controlling tunnel: " + err);
-    loadNetworkAndTunnelInfo();
-  }
-}
-
-function shareUrlViaWhatsApp(inputId) {
-  const input = document.getElementById(inputId);
-  const url = input ? input.value : "";
-  if (!url) {
-    alert("No URL available to share yet.");
-    return;
-  }
-  const message = `🏏 PRISM Live Cricket Ticker Overlay Link:\n\n${url}\n\n(Paste this in PRISM Live Studio -> My Studio -> Widget -> Web)`;
-  const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
-  window.open(waUrl, "_blank");
-}
-
-function copyTickerUrl() {
-  const input = document.getElementById("input-local-ticker-url");
-  const text = input ? input.value : `http://${window.location.hostname}:8000/ticker`;
-  navigator.clipboard.writeText(text).then(() => {
-    alert("Copied PRISM Live Ticker URL:\n" + text + "\n\nPaste this in PRISM Live Studio Web Widget!");
-  }).catch(() => {
-    prompt("Copy this PRISM Live Ticker URL:", text);
-  });
-}
-
-function copyToClipboard(elementId) {
-  const el = document.getElementById(elementId);
-  if (!el) return;
-  el.select();
-  el.setSelectionRange(0, 99999);
-  navigator.clipboard.writeText(el.value).then(() => {
-    alert("Copied to clipboard:\n" + el.value);
-  }).catch(() => {
-    prompt("Copy this URL:", el.value);
-  });
-}
-
-function setPreviewPosition(pos) {
-  const iframe = document.getElementById("preview-ticker-iframe");
-  const btnBottom = document.getElementById("btn-pos-bottom");
-  const btnTop = document.getElementById("btn-pos-top");
-  const localInput = document.getElementById("input-local-ticker-url");
-  const publicInput = document.getElementById("input-public-ticker-url");
-  const qrLocal = document.getElementById("qr-local-ticker");
-  const qrPublic = document.getElementById("qr-public-ticker");
-
-  if (pos === 'top') {
-    if (iframe) iframe.src = "/ticker?pos=top";
-    if (btnTop) btnTop.className = "px-3 py-1.5 rounded-lg font-bold text-xs text-blue-400 bg-slate-800 shadow-sm transition";
-    if (btnBottom) btnBottom.className = "px-3 py-1.5 rounded-lg font-bold text-xs text-slate-400 hover:text-slate-200 transition";
-    
-    if (localInput && !localInput.value.includes("?pos=top")) {
-      localInput.value = localInput.value.split("?")[0] + "?pos=top";
-      if (qrLocal) qrLocal.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(localInput.value)}`;
-    }
-    if (publicInput && publicInput.value && !publicInput.value.includes("?pos=top")) {
-      publicInput.value = publicInput.value.split("?")[0] + "?pos=top";
-      if (qrPublic) qrPublic.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(publicInput.value)}`;
-    }
-  } else {
-    if (iframe) iframe.src = "/ticker";
-    if (btnBottom) btnBottom.className = "px-3 py-1.5 rounded-lg font-bold text-xs text-blue-400 bg-slate-800 shadow-sm transition";
-    if (btnTop) btnTop.className = "px-3 py-1.5 rounded-lg font-bold text-xs text-slate-400 hover:text-slate-200 transition";
-    
-    if (localInput) {
-      localInput.value = localInput.value.replace("?pos=top", "");
-      if (qrLocal) qrLocal.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(localInput.value)}`;
-    }
-    if (publicInput && publicInput.value) {
-      publicInput.value = publicInput.value.replace("?pos=top", "");
-      if (qrPublic) qrPublic.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(publicInput.value)}`;
-    }
   }
 }
