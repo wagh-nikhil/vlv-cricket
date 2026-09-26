@@ -240,15 +240,20 @@
             </div>
             <div id="batters-list" class="space-y-3">
               {% for b in current_match.batters or [] %}
-              <div class="flex items-center justify-between {% if loop.first %}pb-2 border-b border-slate-800/60{% endif %}">
-                <div>
-                  <div class="font-bold text-sm text-slate-100 flex items-center gap-1">
-                    <span>{{ b.name }}</span>
+              <div class="flex items-center justify-between gap-3 {% if loop.first %}pb-3 border-b border-slate-800/60{% else %}pt-1{% endif %}">
+                <div class="flex items-center gap-3 min-w-0">
+                  <img src="{{ b.photo or 'https://media.cricheroes.in/default/user_profile.png' }}" class="w-10 h-10 rounded-full object-cover border border-slate-700 shrink-0 bg-slate-900 shadow" onerror="this.src='https://media.cricheroes.in/default/user_profile.png'">
+                  <div class="truncate">
+                    <div class="font-bold text-sm text-slate-100 flex items-center gap-1.5 truncate">
+                      <span>{{ b.name }}</span>
+                      <span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 font-mono">{{ b.stats.batting_hand if b.stats else "RHB" }}</span>
+                    </div>
+                    <div class="text-xs text-slate-400 mt-0.5">4s: {{ b.fours or 0 }} | 6s: {{ b.sixes or 0 }} | SR: {{ b.sr or "0.0" }}</div>
+                    <div class="text-[10px] text-sky-400 font-medium mt-0.5 truncate">⭐ Career: {{ b.stats.total_matches if b.stats and b.stats.total_matches is defined else (b.stats.matches or 0) }} M • {{ b.stats.total_runs if b.stats and b.stats.total_runs is defined else (b.stats.runs or 0) }} Runs • HS: {{ b.stats.highest_runs if b.stats and b.stats.highest_runs else '-' }}</div>
                   </div>
-                  <div class="text-xs text-slate-400">4s: {{ b.fours or 0 }} | 6s: {{ b.sixes or 0 }} | SR: {{ b.sr or "0.0" }}</div>
                 </div>
-                <div class="text-right">
-                  <div class="text-base font-bold text-amber-400">{{ b.runs or 0 }} <span class="text-xs text-slate-400 font-normal">({{ b.balls or 0 }})</span></div>
+                <div class="text-right shrink-0">
+                  <div class="text-lg font-bold text-amber-400 font-mono">{{ b.runs or 0 }} <span class="text-xs text-slate-400 font-normal">({{ b.balls or 0 }})</span></div>
                 </div>
               </div>
               {% else %}
@@ -264,9 +269,19 @@
               <span class="text-slate-500 font-normal">O - M - R - W</span>
             </div>
             <div id="bowler-info">
-              <div class="font-bold text-base text-slate-100" id="bowler-name">{{ current_match.bowler.name if current_match.bowler else "Bowler" }}</div>
-              <div class="text-2xl font-black text-rose-400 my-1 font-mono" id="bowler-figures">{{ current_match.bowler.overs if current_match.bowler else "0.0" }} - {{ current_match.bowler.maidens if current_match.bowler else 0 }} - {{ current_match.bowler.runs if current_match.bowler else 0 }} - {{ current_match.bowler.wickets if current_match.bowler else 0 }}</div>
-              <div class="text-xs text-slate-400 mt-2 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <img src="{{ current_match.bowler.photo if current_match.bowler and current_match.bowler.photo else 'https://media.cricheroes.in/default/user_profile.png' }}" class="w-12 h-12 rounded-full object-cover border-2 border-rose-500/40 shrink-0 bg-slate-900 shadow" onerror="this.src='https://media.cricheroes.in/default/user_profile.png'">
+                <div class="truncate">
+                  <div class="font-bold text-base text-slate-100 flex items-center gap-2">
+                    <span id="bowler-name">{{ current_match.bowler.name if current_match.bowler else "Bowler" }}</span>
+                    <span class="text-[10px] px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-300 font-medium">{{ current_match.bowler.stats.bowling_style if current_match.bowler and current_match.bowler.stats else "Right-arm Medium" }}</span>
+                  </div>
+                  <div class="text-[11px] text-rose-400 font-medium mt-0.5">⭐ Career: {{ current_match.bowler.stats.total_matches if current_match.bowler and current_match.bowler.stats and current_match.bowler.stats.total_matches is defined else (current_match.bowler.stats.matches if current_match.bowler and current_match.bowler.stats else 0) }} M • {{ current_match.bowler.stats.total_wickets if current_match.bowler and current_match.bowler.stats and current_match.bowler.stats.total_wickets is defined else (current_match.bowler.stats.wickets if current_match.bowler and current_match.bowler.stats else 0) }} Wkts • Econ: {{ current_match.bowler.stats.bowl_econ if current_match.bowler and current_match.bowler.stats and current_match.bowler.stats.bowl_econ else (current_match.bowler.stats.econ if current_match.bowler and current_match.bowler.stats else "0.00") }}</div>
+                </div>
+              </div>
+
+              <div class="text-2xl font-black text-rose-400 my-2 font-mono" id="bowler-figures">{{ current_match.bowler.overs if current_match.bowler else "0.0" }} - {{ current_match.bowler.maidens if current_match.bowler else 0 }} - {{ current_match.bowler.runs if current_match.bowler else 0 }} - {{ current_match.bowler.wickets if current_match.bowler else 0 }}</div>
+              <div class="text-xs text-slate-400 flex items-center justify-between border-t border-slate-800/60 pt-2 mt-1">
                 <span>Economy: <span id="bowler-econ" class="text-slate-200 font-semibold">{{ current_match.bowler.econ if current_match.bowler else "0.0" }}</span></span>
                 <span class="text-slate-500">Over in progress</span>
               </div>

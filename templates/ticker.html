@@ -86,6 +86,55 @@
   </div>
 
   <!-- ======================================================== -->
+  <!-- BROADCAST PLAYER SPOTLIGHT POPUP (Bowler / Batsman Intro)-->
+  <!-- ======================================================== -->
+  <div id="player-spotlight-card" class="w-full max-w-7xl mx-auto mb-2 transition-all duration-500 ease-out transform translate-y-6 opacity-0 pointer-events-none hidden">
+    <div class="tv-glass rounded-xl border border-blue-500/60 p-2.5 sm:p-3 shadow-2xl flex items-center justify-between gap-3 text-white backdrop-blur-xl">
+      <!-- Player Avatar + Badge + Name & Role -->
+      <div class="flex items-center gap-3 min-w-0">
+        <!-- Photo with glow -->
+        <div class="relative shrink-0">
+          <img id="spotlight-photo" src="https://media.cricheroes.in/default/user_profile.png" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.6)] bg-slate-900" onerror="this.src='https://media.cricheroes.in/default/user_profile.png'">
+          <span id="spotlight-badge" class="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-rose-600 text-white border border-rose-400 shadow">
+            BOWLER
+          </span>
+        </div>
+
+        <!-- Name & Style -->
+        <div class="truncate">
+          <div class="flex items-center gap-2">
+            <span id="spotlight-title" class="text-[10px] font-bold tracking-wider uppercase text-blue-400 font-chakra">⚡ NEW BOWLER INTO THE ATTACK</span>
+          </div>
+          <div id="spotlight-name" class="text-base sm:text-lg font-black text-white truncate tracking-tight font-chakra">
+            Player Name
+          </div>
+          <div id="spotlight-style" class="text-[11px] text-slate-300 font-medium truncate">
+            Right-arm Medium • All-Rounder
+          </div>
+        </div>
+      </div>
+
+      <!-- Career Statistics Grid -->
+      <div id="spotlight-stats" class="flex items-center gap-3 sm:gap-5 bg-slate-950/80 border border-slate-700/60 rounded-xl px-3 py-1.5 sm:px-4 sm:py-2 shrink-0 font-chakra shadow-inner">
+        <div class="text-center min-w-[45px]">
+          <div class="text-[9px] sm:text-[10px] text-slate-400 uppercase font-sans">Matches</div>
+          <div id="stat-matches" class="text-sm sm:text-base font-black text-amber-400 font-mono-score">27</div>
+        </div>
+        <div class="w-px h-6 bg-slate-800"></div>
+        <div class="text-center min-w-[50px]">
+          <div id="stat-key1-label" class="text-[9px] sm:text-[10px] text-slate-400 uppercase font-sans">Wickets</div>
+          <div id="stat-key1-val" class="text-sm sm:text-base font-black text-rose-400 font-mono-score">20</div>
+        </div>
+        <div class="w-px h-6 bg-slate-800"></div>
+        <div class="text-center min-w-[50px]">
+          <div id="stat-key2-label" class="text-[9px] sm:text-[10px] text-slate-400 uppercase font-sans">Economy</div>
+          <div id="stat-key2-val" class="text-sm sm:text-base font-black text-emerald-400 font-mono-score">9.30</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
   <!-- MAIN LOWER THIRD TICKER CONTAINER                        -->
   <!-- ======================================================== -->
   <div id="ticker-wrapper" class="w-full max-w-7xl mx-auto transition-all duration-300">
@@ -147,9 +196,10 @@
         <div class="col-span-12 sm:col-span-6 md:col-span-4 border-b sm:border-b-0 sm:border-r border-slate-800 pb-2 sm:pb-0 sm:pr-4 space-y-1.5">
           <!-- Striker -->
           <div class="flex items-center justify-between text-xs">
-            <div class="flex items-center gap-1.5 truncate">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              <span id="batter1-name" class="font-bold text-slate-100 truncate max-w-[130px]">
+            <div class="flex items-center gap-2 truncate">
+              <img id="batter1-photo" src="{{ current_match.batters[0].photo if current_match.batters and current_match.batters|length > 0 and current_match.batters[0].photo else 'https://media.cricheroes.in/default/user_profile.png' }}" class="w-6 h-6 rounded-full object-cover border border-slate-700 shrink-0 bg-slate-800" onerror="this.src='https://media.cricheroes.in/default/user_profile.png'">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
+              <span id="batter1-name" class="font-bold text-slate-100 truncate max-w-[110px]">
                 {{ current_match.batters[0].name if current_match.batters and current_match.batters|length > 0 else "Batter 1*" }}
               </span>
             </div>
@@ -165,9 +215,10 @@
 
           <!-- Non-Striker -->
           <div class="flex items-center justify-between text-xs">
-            <div class="flex items-center gap-1.5 truncate">
-              <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
-              <span id="batter2-name" class="font-semibold text-slate-300 truncate max-w-[130px]">
+            <div class="flex items-center gap-2 truncate">
+              <img id="batter2-photo" src="{{ current_match.batters[1].photo if current_match.batters and current_match.batters|length > 1 and current_match.batters[1].photo else 'https://media.cricheroes.in/default/user_profile.png' }}" class="w-6 h-6 rounded-full object-cover border border-slate-700 shrink-0 bg-slate-800" onerror="this.src='https://media.cricheroes.in/default/user_profile.png'">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0"></span>
+              <span id="batter2-name" class="font-semibold text-slate-300 truncate max-w-[110px]">
                 {{ current_match.batters[1].name if current_match.batters and current_match.batters|length > 1 else "Batter 2" }}
               </span>
             </div>
@@ -186,9 +237,10 @@
         <div class="col-span-12 sm:col-span-6 md:col-span-4 flex flex-col justify-between space-y-1.5">
           <!-- Bowler Figures -->
           <div class="flex items-center justify-between text-xs">
-            <div class="flex items-center gap-1.5 truncate">
+            <div class="flex items-center gap-2 truncate">
+              <img id="bowler-photo" src="{{ current_match.bowler.photo if current_match.bowler and current_match.bowler.photo else 'https://media.cricheroes.in/default/user_profile.png' }}" class="w-6 h-6 rounded-full object-cover border border-rose-500/50 shrink-0 bg-slate-800" onerror="this.src='https://media.cricheroes.in/default/user_profile.png'">
               <span class="text-rose-400 font-bold">🎯</span>
-              <span id="bowler-name" class="font-bold text-slate-100 truncate max-w-[120px]">
+              <span id="bowler-name" class="font-bold text-slate-100 truncate max-w-[105px]">
                 {{ current_match.bowler.name if current_match.bowler else "Bowler" }}
               </span>
             </div>
@@ -267,6 +319,81 @@
       }, 3500);
     }
 
+    let lastBowlerKey = "";
+    let knownBatterKeys = new Set();
+    let spotlightTimer = null;
+
+    function showPlayerSpotlight(player, type) {
+      if (!player || !player.name) return;
+      const card = document.getElementById("player-spotlight-card");
+      if (!card) return;
+
+      const photoEl = document.getElementById("spotlight-photo");
+      const badgeEl = document.getElementById("spotlight-badge");
+      const titleEl = document.getElementById("spotlight-title");
+      const nameEl = document.getElementById("spotlight-name");
+      const styleEl = document.getElementById("spotlight-style");
+
+      const matchesEl = document.getElementById("stat-matches");
+      const key1Label = document.getElementById("stat-key1-label");
+      const key1Val = document.getElementById("stat-key1-val");
+      const key2Label = document.getElementById("stat-key2-label");
+      const key2Val = document.getElementById("stat-key2-val");
+
+      photoEl.src = player.photo || (player.stats && player.stats.photo) || "https://media.cricheroes.in/default/user_profile.png";
+      nameEl.textContent = player.name.replace("*", "");
+
+      const stats = player.stats || {};
+      const matches = stats.total_matches !== undefined ? stats.total_matches : (stats.matches !== undefined ? stats.matches : 0);
+      matchesEl.textContent = matches;
+
+      if (type === "bowler") {
+        badgeEl.textContent = "BOWLER";
+        badgeEl.className = "absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-rose-600 text-white border border-rose-400 shadow";
+        titleEl.textContent = "⚡ NEW BOWLER INTO THE ATTACK";
+        titleEl.className = "text-[10px] font-bold tracking-wider uppercase text-rose-400 font-chakra";
+        styleEl.textContent = `${stats.bowling_style || "Right-arm Medium"} • ${stats.playing_role || "Bowler"}`;
+
+        key1Label.textContent = "WICKETS";
+        key1Val.textContent = stats.total_wickets !== undefined ? stats.total_wickets : (stats.wickets !== undefined ? stats.wickets : 0);
+        key1Val.className = "text-sm sm:text-base font-black text-rose-400 font-mono-score";
+
+        key2Label.textContent = "ECONOMY";
+        key2Val.textContent = stats.bowl_econ || stats.econ || "0.00";
+        key2Val.className = "text-sm sm:text-base font-black text-emerald-400 font-mono-score";
+      } else {
+        badgeEl.textContent = "BATTER";
+        badgeEl.className = "absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-emerald-600 text-white border border-emerald-400 shadow";
+        titleEl.textContent = "🏏 NEW BATTER AT THE CREASE";
+        titleEl.className = "text-[10px] font-bold tracking-wider uppercase text-emerald-400 font-chakra";
+        styleEl.textContent = `${stats.batting_hand || "Right Hand Bat"} • ${stats.playing_role || "Batsman"}`;
+
+        key1Label.textContent = "RUNS";
+        key1Val.textContent = stats.total_runs !== undefined ? stats.total_runs : (stats.runs !== undefined ? stats.runs : 0);
+        key1Val.className = "text-sm sm:text-base font-black text-amber-400 font-mono-score";
+
+        key2Label.textContent = "STRIKE RATE";
+        key2Val.textContent = stats.bat_sr || stats.sr || (stats.highest_runs ? `HS: ${stats.highest_runs}` : "0.0");
+        key2Val.className = "text-sm sm:text-base font-black text-sky-400 font-mono-score";
+      }
+
+      // Smooth slide-in
+      card.classList.remove("hidden");
+      requestAnimationFrame(() => {
+        card.classList.remove("translate-y-6", "opacity-0", "pointer-events-none");
+        card.classList.add("translate-y-0", "opacity-100");
+      });
+
+      if (spotlightTimer) clearTimeout(spotlightTimer);
+      spotlightTimer = setTimeout(() => {
+        card.classList.remove("translate-y-0", "opacity-100");
+        card.classList.add("translate-y-6", "opacity-0", "pointer-events-none");
+        setTimeout(() => {
+          card.classList.add("hidden");
+        }, 500);
+      }, 8500);
+    }
+
     function updateTickerUI(match) {
       if (!match || match.status === "idle") return;
 
@@ -294,13 +421,26 @@
           document.getElementById("batter1-name").textContent = b1.name || "Batter 1*";
           document.getElementById("batter1-runs").textContent = b1.runs ?? 0;
           document.getElementById("batter1-balls").textContent = `(${b1.balls ?? 0})`;
+          const b1Photo = document.getElementById("batter1-photo");
+          if (b1Photo && b1.photo) b1Photo.src = b1.photo;
 
           if (match.batters.length > 1) {
             const b2 = match.batters[1];
             document.getElementById("batter2-name").textContent = b2.name || "Batter 2";
             document.getElementById("batter2-runs").textContent = b2.runs ?? 0;
             document.getElementById("batter2-balls").textContent = `(${b2.balls ?? 0})`;
+            const b2Photo = document.getElementById("batter2-photo");
+            if (b2Photo && b2.photo) b2Photo.src = b2.photo;
           }
+
+          // Check if new batter arrived
+          match.batters.forEach(b => {
+            const bKey = (b.player_id || '') + '_' + b.name.replace('*', '').trim();
+            if (knownBatterKeys.size > 0 && !knownBatterKeys.has(bKey) && b.name) {
+              showPlayerSpotlight(b, "batter");
+            }
+            knownBatterKeys.add(bKey);
+          });
         }
 
         // Bowler
@@ -309,6 +449,15 @@
           document.getElementById("bowler-name").textContent = bw.name || "Bowler";
           document.getElementById("bowler-figures").textContent = `${bw.wickets ?? 0}-${bw.runs ?? 0}`;
           document.getElementById("bowler-overs").textContent = `(${bw.overs || "0.0"})`;
+          const bwPhoto = document.getElementById("bowler-photo");
+          if (bwPhoto && bw.photo) bwPhoto.src = bw.photo;
+
+          // Check if bowler changed
+          const currentBowlerKey = (bw.player_id || '') + '_' + (bw.name || '').trim();
+          if (lastBowlerKey && currentBowlerKey !== lastBowlerKey && bw.name) {
+            showPlayerSpotlight(bw, "bowler");
+          }
+          lastBowlerKey = currentBowlerKey;
         }
 
         // Deliveries Strip

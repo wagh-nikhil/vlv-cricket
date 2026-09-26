@@ -7,11 +7,63 @@ from typing import Dict, Any, List
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import config
 
+SIMULATOR_PLAYERS = {
+    "Biswajit Nath": {
+        "player_id": 29129292,
+        "name": "Biswajit Nath",
+        "photo": "https://media.cricheroes.in/user_profile/1732345230311_5ssKXBIkHsBz.jpg",
+        "playing_role": "Batsman",
+        "batting_hand": "RHB",
+        "bowling_style": "Right-arm Medium",
+        "total_matches": 3, "total_runs": 1, "highest_runs": "1", "bat_sr": "16.7",
+        "total_wickets": 0, "bowl_econ": "0.00"
+    },
+    "Darshit D Patel": {
+        "player_id": 260417,
+        "name": "Darshit D Patel",
+        "photo": "https://media.cricheroes.in/default/user_profile.png",
+        "playing_role": "All-Rounder",
+        "batting_hand": "RHB",
+        "bowling_style": "Slow left-arm orthodox",
+        "total_matches": 27, "total_runs": 128, "highest_runs": "28", "bat_sr": "139.1",
+        "total_wickets": 20, "bowl_econ": "9.30"
+    },
+    "Chintan Selarka": {
+        "player_id": 26453442,
+        "name": "Chintan Selarka",
+        "photo": "https://media.cricheroes.in/default/user_profile.png",
+        "playing_role": "Bowler",
+        "batting_hand": "RHB",
+        "bowling_style": "Right-arm Medium",
+        "total_matches": 18, "total_runs": 85, "highest_runs": "24", "bat_sr": "120.0",
+        "total_wickets": 15, "bowl_econ": "8.40"
+    },
+    "Manish Harne": {
+        "player_id": 32376391,
+        "name": "Manish Harne",
+        "photo": "https://media.cricheroes.in/default/user_profile.png",
+        "playing_role": "Batsman",
+        "batting_hand": "RHB",
+        "bowling_style": "Right-arm Medium",
+        "total_matches": 12, "total_runs": 140, "highest_runs": "38", "bat_sr": "145.0",
+        "total_wickets": 4, "bowl_econ": "9.10"
+    },
+    "Divyam Pant": {
+        "player_id": 21597873,
+        "name": "Divyam Pant",
+        "photo": "https://media.cricheroes.in/default/user_profile.png",
+        "playing_role": "All-Rounder",
+        "batting_hand": "LHB",
+        "bowling_style": "Left-arm Fast",
+        "total_matches": 22, "total_runs": 210, "highest_runs": "45", "bat_sr": "155.0",
+        "total_wickets": 18, "bowl_econ": "7.90"
+    }
+}
+
 class MatchSimulator:
     """
     Simulates a live 8-over cricket match between real tournament teams (e.g. F Wing vs A wing)
-    with realistic ball-by-ball outcomes to allow testing the live score dashboard,
-    automatic poster generator, and WhatsApp dispatcher ahead of match day.
+    with realistic ball-by-ball outcomes to allow testing the live score dashboard and PRISM ticker.
     """
     def __init__(self, match_id: int = 27016163, team_a: str = "F Wing", team_b: str = "A wing"):
         self.match_id = match_id
@@ -26,16 +78,35 @@ class MatchSimulator:
         self.wickets = 0
         self.balls_bowled = 0
         self.is_completed = False
-        self.status = "live" # "live" or "completed"
+        self.status = "live"
         self.current_over_balls: List[str] = []
         
-        # Real players from A Wing & F Wing
+        p1 = SIMULATOR_PLAYERS["Biswajit Nath"]
+        p2 = SIMULATOR_PLAYERS["Darshit D Patel"]
+        bw = SIMULATOR_PLAYERS["Chintan Selarka"]
+
         self.batters = [
-            {"name": "Biswajit Nath*", "runs": 0, "balls": 0, "fours": 0, "sixes": 0, "sr": "0.0"},
-            {"name": "Darshit Patel", "runs": 0, "balls": 0, "fours": 0, "sixes": 0, "sr": "0.0"}
+            {
+                "player_id": p1["player_id"],
+                "name": p1["name"] + "*",
+                "runs": 0, "balls": 0, "fours": 0, "sixes": 0, "sr": "0.0",
+                "photo": p1["photo"],
+                "stats": p1
+            },
+            {
+                "player_id": p2["player_id"],
+                "name": p2["name"],
+                "runs": 0, "balls": 0, "fours": 0, "sixes": 0, "sr": "0.0",
+                "photo": p2["photo"],
+                "stats": p2
+            }
         ]
         self.bowler = {
-            "name": "Venkatesh Iyer", "overs": "0.0", "maidens": 0, "runs": 0, "wickets": 0, "econ": "0.0"
+            "player_id": bw["player_id"],
+            "name": bw["name"],
+            "overs": "0.0", "maidens": 0, "runs": 0, "wickets": 0, "econ": "0.0",
+            "photo": bw["photo"],
+            "stats": bw
         }
         self.equation = f"{self.team_a} need {self.target} runs in {self.overs_limit * 6} balls to win"
 
@@ -84,9 +155,19 @@ class MatchSimulator:
             self.bowler["wickets"] += 1
             self.current_over_balls.append("W")
             # Replace out batter
-            next_batter_names = ["Manish Harne", "Rajat Bhati", "Sandeep Sahoo", "Vicky N", "Vishal S"]
-            new_name = random.choice(next_batter_names) + "*"
-            self.batters[0] = {"name": new_name, "runs": 0, "balls": 0, "fours": 0, "sixes": 0, "sr": "0.0"}
+            next_batter_names = ["Manish Harne", "Divyam Pant", "Biswajit Nath", "Darshit D Patel"]
+            choice_name = random.choice(next_batter_names)
+            p_info = SIMULATOR_PLAYERS.get(choice_name, {
+                "player_id": 99999, "name": choice_name, "photo": "https://media.cricheroes.in/default/user_profile.png",
+                "playing_role": "Batsman", "batting_hand": "RHB", "bowling_style": "", "total_matches": 10, "total_runs": 80, "highest_runs": "25"
+            })
+            self.batters[0] = {
+                "player_id": p_info.get("player_id", 0),
+                "name": p_info["name"] + "*",
+                "runs": 0, "balls": 0, "fours": 0, "sixes": 0, "sr": "0.0",
+                "photo": p_info.get("photo", "https://media.cricheroes.in/default/user_profile.png"),
+                "stats": p_info
+            }
         else:
             run_val = int(outcome)
             self.balls_bowled += 1
@@ -146,14 +227,22 @@ class MatchSimulator:
             b1["name"] = b1["name"].replace("*", "") + "*"
             self.batters = [b1, b0]
             # Change bowler
-            next_bowlers = ["Darshit D Patel", "Chintan Selarka", "Manoj Pathak", "Divyam Pant"]
+            next_bowlers = ["Darshit D Patel", "Chintan Selarka", "Divyam Pant"]
+            bw_name = random.choice(next_bowlers)
+            bw_info = SIMULATOR_PLAYERS.get(bw_name, {
+                "player_id": 88888, "name": bw_name, "photo": "https://media.cricheroes.in/default/user_profile.png",
+                "playing_role": "Bowler", "batting_hand": "RHB", "bowling_style": "Right-arm Medium", "total_matches": 15, "total_wickets": 12, "bowl_econ": "8.50"
+            })
             self.bowler = {
-                "name": random.choice(next_bowlers),
-                "overs": f"0.0",
+                "player_id": bw_info.get("player_id", 0),
+                "name": bw_info["name"],
+                "overs": "0.0",
                 "maidens": 0,
                 "runs": 0,
                 "wickets": 0,
-                "econ": "0.0"
+                "econ": "0.00",
+                "photo": bw_info.get("photo", "https://media.cricheroes.in/default/user_profile.png"),
+                "stats": bw_info
             }
             self.current_over_balls = []
 

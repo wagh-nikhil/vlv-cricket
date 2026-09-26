@@ -237,16 +237,28 @@ function updateLiveScorecardUI(match) {
       battersList.innerHTML = "";
       match.batters.slice(0, 2).forEach((b, idx) => {
         const div = document.createElement("div");
-        div.className = `flex items-center justify-between ${idx === 0 ? "pb-2 border-b border-slate-800/60" : ""}`;
+        div.className = `flex items-center justify-between gap-3 ${idx === 0 ? "pb-3 border-b border-slate-800/60" : "pt-1"}`;
+        const photo = b.photo || (b.stats && b.stats.photo) || "https://media.cricheroes.in/default/user_profile.png";
+        const stats = b.stats || {};
+        const careerMatches = stats.total_matches !== undefined ? stats.total_matches : (stats.matches !== undefined ? stats.matches : 0);
+        const careerRuns = stats.total_runs !== undefined ? stats.total_runs : (stats.runs !== undefined ? stats.runs : 0);
+        const hs = stats.highest_runs || "-";
+        const style = stats.batting_hand || "RHB";
+
         div.innerHTML = `
-          <div>
-            <div class="font-bold text-sm text-slate-100 flex items-center gap-1">
-              <span>${b.name}</span>
+          <div class="flex items-center gap-3 min-w-0">
+            <img src="${photo}" class="w-10 h-10 rounded-full object-cover border border-slate-700 shrink-0 bg-slate-900 shadow" onerror="this.src='https://media.cricheroes.in/default/user_profile.png'">
+            <div class="truncate">
+              <div class="font-bold text-sm text-slate-100 flex items-center gap-1.5 truncate">
+                <span>${b.name}</span>
+                <span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 font-mono">${style}</span>
+              </div>
+              <div class="text-xs text-slate-400 mt-0.5">4s: ${b.fours || 0} | 6s: ${b.sixes || 0} | SR: ${b.sr || "0.0"}</div>
+              <div class="text-[10px] text-sky-400 font-medium mt-0.5 truncate">⭐ Career: ${careerMatches} M • ${careerRuns} Runs • HS: ${hs}</div>
             </div>
-            <div class="text-xs text-slate-400">4s: ${b.fours || 0} | 6s: ${b.sixes || 0} | SR: ${b.sr || "0.0"}</div>
           </div>
-          <div class="text-right">
-            <div class="text-base font-bold text-amber-400">${b.runs || 0} <span class="text-xs text-slate-400 font-normal">(${b.balls || 0})</span></div>
+          <div class="text-right shrink-0">
+            <div class="text-lg font-black text-amber-400 font-mono">${b.runs || 0} <span class="text-xs text-slate-400 font-normal">(${b.balls || 0})</span></div>
           </div>
         `;
         battersList.appendChild(div);
@@ -254,13 +266,36 @@ function updateLiveScorecardUI(match) {
     }
 
     // Bowler Card
-    const bwName = document.getElementById("bowler-name");
-    const bwFigures = document.getElementById("bowler-figures");
-    const bwEcon = document.getElementById("bowler-econ");
-    if (match.bowler) {
-      if (bwName) bwName.textContent = match.bowler.name || "Bowler";
-      if (bwFigures) bwFigures.textContent = `${match.bowler.overs || "0.0"} - ${match.bowler.maidens || 0} - ${match.bowler.runs || 0} - ${match.bowler.wickets || 0}`;
-      if (bwEcon) bwEcon.textContent = match.bowler.econ || "0.0";
+    const bowlerContainer = document.getElementById("bowler-info");
+    if (bowlerContainer && match.bowler) {
+      const bw = match.bowler;
+      const bwPhoto = bw.photo || (bw.stats && bw.stats.photo) || "https://media.cricheroes.in/default/user_profile.png";
+      const bwStats = bw.stats || {};
+      const bwMatches = bwStats.total_matches !== undefined ? bwStats.total_matches : (bwStats.matches !== undefined ? bwStats.matches : 0);
+      const bwWickets = bwStats.total_wickets !== undefined ? bwStats.total_wickets : (bwStats.wickets !== undefined ? bwStats.wickets : 0);
+      const bwCareerEcon = bwStats.bowl_econ || bwStats.econ || "0.00";
+      const bwStyle = bwStats.bowling_style || "Right-arm Medium";
+
+      bowlerContainer.innerHTML = `
+        <div class="flex items-center gap-3">
+          <img src="${bwPhoto}" class="w-12 h-12 rounded-full object-cover border-2 border-rose-500/40 shrink-0 bg-slate-900 shadow" onerror="this.src='https://media.cricheroes.in/default/user_profile.png'">
+          <div class="truncate">
+            <div class="font-bold text-base text-slate-100 flex items-center gap-2">
+              <span id="bowler-name">${bw.name || "Bowler"}</span>
+              <span class="text-[10px] px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-300 font-medium">${bwStyle}</span>
+            </div>
+            <div class="text-[11px] text-rose-400 font-medium mt-0.5">⭐ Career: ${bwMatches} M • ${bwWickets} Wkts • Econ: ${bwCareerEcon}</div>
+          </div>
+        </div>
+
+        <div class="text-2xl font-black text-rose-400 my-2 font-mono" id="bowler-figures">
+          ${bw.overs || "0.0"} - ${bw.maidens || 0} - ${bw.runs || 0} - ${bw.wickets || 0}
+        </div>
+        <div class="text-xs text-slate-400 flex items-center justify-between border-t border-slate-800/60 pt-2 mt-1">
+          <span>Economy: <span id="bowler-econ" class="text-slate-200 font-semibold">${bw.econ || "0.0"}</span></span>
+          <span class="text-slate-500">Over in progress</span>
+        </div>
+      `;
     }
 
   } catch (err) {

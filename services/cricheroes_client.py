@@ -34,7 +34,73 @@ class CricHeroesClient:
         }
         self._scorecard_cache: Dict[int, Dict[str, Any]] = {}
         self._scorecard_cache_time: Dict[int, float] = {}
+        self._player_cache: Dict[int, Dict[str, Any]] = {}
         self._cache_ttl = 10.0  # seconds - fast ball-by-ball refreshes
+
+    def fetch_player_stats(self, player_id: int) -> Dict[str, Any]:
+        """Fetches player profile and career stats with in-memory caching."""
+        if not player_id or player_id <= 0:
+            return {}
+        if player_id in self._player_cache:
+            return self._player_cache[player_id]
+
+        url = f"https://cricheroes.in/api/v1/player/get-player-profile-web/{player_id}"
+        try:
+            r = requests.get(url, headers=self.api_headers, impersonate="chrome120", timeout=5)
+            if r.status_code == 200:
+                pdata = r.json().get("data", {})
+                if pdata:
+                    photo = pdata.get("profile_photo") or "https://media.cricheroes.in/default/user_profile.png"
+                    
+                    # Fetch detailed stats
+                    stat_url = f"https://cricheroes.in/api/v1/player/get-player-statistic/{player_id}"
+                    sr_resp = requests.get(stat_url, headers=self.api_headers, impersonate="chrome120", timeout=5)
+                    stats_json = sr_resp.json().get("data", {}).get("statistics", {}) if sr_resp.status_code == 200 else {}
+                    
+                    bat_stats = {s.get("title"): s.get("value") for s in stats_json.get("batting", [])}
+                    bowl_stats = {s.get("title"): s.get("value") for s in stats_json.get("bowling", [])}
+
+                    formatted = {
+                        "player_id": player_id,
+                        "name": pdata.get("name", "Player"),
+                        "photo": photo,
+                        "playing_role": pdata.get("playing_role") or "Player",
+                        "batting_hand": pdata.get("batting_hand") or "RHB",
+                        "bowling_style": pdata.get("bowling_style") or "",
+                        "batter_category": pdata.get("batter_category") or "",
+                        "bowler_category": pdata.get("bowler_category") or "",
+                        "total_matches": pdata.get("total_matches", 0),
+                        "total_runs": pdata.get("total_runs", 0),
+                        "total_wickets": pdata.get("total_wickets", 0),
+                        "highest_runs": str(bat_stats.get("Highest Runs", "-")),
+                        "bat_sr": str(bat_stats.get("SR", "0.0")),
+                        "bat_avg": str(bat_stats.get("Avg", "0.0")),
+                        "bowl_overs": str(bowl_stats.get("Overs", "0.0")),
+                        "bowl_econ": str(bowl_stats.get("Economy", "0.00")),
+                        "bowl_sr": str(bowl_stats.get("SR", "0.0")),
+                        "bowl_avg": str(bowl_stats.get("Avg", "0.0")),
+                    }
+                    self._player_cache[player_id] = formatted
+                    return formatted
+        except Exception as e:
+            logger.warning(f"Failed to fetch stats for player {player_id}: {e}")
+
+        fallback = {
+            "player_id": player_id,
+            "name": "Player",
+            "photo": "https://media.cricheroes.in/default/user_profile.png",
+            "playing_role": "",
+            "batting_hand": "",
+            "bowling_style": "",
+            "total_matches": 0,
+            "total_runs": 0,
+            "total_wickets": 0,
+            "highest_runs": "-",
+            "bat_sr": "0.0",
+            "bowl_econ": "0.00"
+        }
+        self._player_cache[player_id] = fallback
+        return fallback
 
     def _extract_json_block(self, text: str, key: str) -> Optional[Dict[str, Any]]:
         """Finds and parses a balanced JSON object containing a given key."""
@@ -205,35 +271,50 @@ class CricHeroesClient:
             batters = []
             sb = batters_raw.get("sb")
             if sb:
+                sb_id = sb.get("player_id", 0)
+                sb_stats = self.fetch_player_stats(sb_id) if sb_id else {}
                 batters.append({
+                    "player_id": sb_id,
                     "name": sb.get("name", "Batter") + "*",
                     "runs": sb.get("runs", 0),
                     "balls": sb.get("balls", 0),
                     "fours": sb.get("4s", 0),
                     "sixes": sb.get("6s", 0),
-                    "sr": str(sb.get("strike_rate", "0.0"))
+                    "sr": str(sb.get("strike_rate", "0.0")),
+                    "photo": sb.get("profile_photo") or sb_stats.get("photo") or "https://media.cricheroes.in/default/user_profile.png",
+                    "stats": sb_stats
                 })
             nsb = batters_raw.get("nsb")
             if nsb:
+                nsb_id = nsb.get("player_id", 0)
+                nsb_stats = self.fetch_player_stats(nsb_id) if nsb_id else {}
                 batters.append({
+                    "player_id": nsb_id,
                     "name": nsb.get("name", "Batter"),
                     "runs": nsb.get("runs", 0),
                     "balls": nsb.get("balls", 0),
                     "fours": nsb.get("4s", 0),
                     "sixes": nsb.get("6s", 0),
-                    "sr": str(nsb.get("strike_rate", "0.0"))
+                    "sr": str(nsb.get("strike_rate", "0.0")),
+                    "photo": nsb.get("profile_photo") or nsb_stats.get("photo") or "https://media.cricheroes.in/default/user_profile.png",
+                    "stats": nsb_stats
                 })
 
             # Bowler
             bowlers_raw = raw.get("bowlers", {}) or {}
             bw_sb = bowlers_raw.get("sb") or {}
+            bw_id = bw_sb.get("player_id", 0)
+            bw_stats = self.fetch_player_stats(bw_id) if bw_id else {}
             bowler = {
+                "player_id": bw_id,
                 "name": bw_sb.get("name", "Bowler"),
                 "overs": str(bw_sb.get("overs", "0.0")),
                 "maidens": bw_sb.get("maidens", 0),
                 "runs": bw_sb.get("runs", 0),
                 "wickets": bw_sb.get("wickets", 0),
-                "econ": str(bw_sb.get("economy_rate", "0.0"))
+                "econ": str(bw_sb.get("economy_rate", "0.0")),
+                "photo": bw_stats.get("photo") or "https://media.cricheroes.in/default/user_profile.png",
+                "stats": bw_stats
             }
 
             recent_over_str = raw.get("recent_over", "")
@@ -316,6 +397,7 @@ class CricHeroesClient:
         """Finds match info in cached upcoming/live matches and formats as a scorecard dict."""
         state = self.load_cached_state()
         all_matches = state.get("upcoming_matches", []) + state.get("live_matches", [])
+        teams = state.get("teams", [])
         for m in all_matches:
             if m.get("match_id") == match_id:
                 start_time = m.get("match_start_time", "")
@@ -328,6 +410,24 @@ class CricHeroesClient:
                     except Exception:
                         time_str = ""
                 eq_str = f"SCHEDULED {time_str} - {m.get('team_a')} VS {m.get('team_b')}" if time_str else f"{m.get('team_a')} VS {m.get('team_b')}"
+
+                # Look up real team players if available
+                team_a_players = []
+                team_b_players = []
+                for t in teams:
+                    if t.get("team_name", "").lower() == m.get("team_a", "").lower():
+                        team_a_players = t.get("players", [])
+                    elif t.get("team_name", "").lower() == m.get("team_b", "").lower():
+                        team_b_players = t.get("players", [])
+
+                bat1 = team_a_players[0] if len(team_a_players) > 0 else {"player_name": f"{m.get('team_a')} Opener 1", "player_id": 0, "profile_photo": "https://media.cricheroes.in/default/user_profile.png"}
+                bat2 = team_a_players[1] if len(team_a_players) > 1 else {"player_name": f"{m.get('team_a')} Opener 2", "player_id": 0, "profile_photo": "https://media.cricheroes.in/default/user_profile.png"}
+                bw = team_b_players[0] if len(team_b_players) > 0 else {"player_name": f"{m.get('team_b')} Bowler", "player_id": 0, "profile_photo": "https://media.cricheroes.in/default/user_profile.png"}
+
+                bat1_stats = self.fetch_player_stats(bat1.get("player_id", 0)) if bat1.get("player_id") else {}
+                bat2_stats = self.fetch_player_stats(bat2.get("player_id", 0)) if bat2.get("player_id") else {}
+                bw_stats = self.fetch_player_stats(bw.get("player_id", 0)) if bw.get("player_id") else {}
+
                 return {
                     "match_id": match_id,
                     "team_a": m.get("team_a", "Team A"),
@@ -345,15 +445,31 @@ class CricHeroesClient:
                     "equation": eq_str.upper(),
                     "recent_balls": ["-", "-", "-", "-", "-", "-"],
                     "batters": [
-                        {"name": f"{m.get('team_a')} Openers", "runs": 0, "balls": 0, "fours": 0, "sixes": 0, "sr": "0.0"}
+                        {
+                            "player_id": bat1.get("player_id", 0),
+                            "name": bat1.get("player_name", "Batter 1") + "*",
+                            "runs": 0, "balls": 0, "fours": 0, "sixes": 0, "sr": "0.0",
+                            "photo": bat1.get("profile_photo") or bat1_stats.get("photo") or "https://media.cricheroes.in/default/user_profile.png",
+                            "stats": bat1_stats
+                        },
+                        {
+                            "player_id": bat2.get("player_id", 0),
+                            "name": bat2.get("player_name", "Batter 2"),
+                            "runs": 0, "balls": 0, "fours": 0, "sixes": 0, "sr": "0.0",
+                            "photo": bat2.get("profile_photo") or bat2_stats.get("photo") or "https://media.cricheroes.in/default/user_profile.png",
+                            "stats": bat2_stats
+                        }
                     ],
                     "bowler": {
-                        "name": f"{m.get('team_b')} Opening Bowler",
+                        "player_id": bw.get("player_id", 0),
+                        "name": bw.get("player_name", "Bowler"),
                         "overs": "0.0",
                         "maidens": 0,
                         "runs": 0,
                         "wickets": 0,
-                        "econ": "0.00"
+                        "econ": "0.00",
+                        "photo": bw.get("profile_photo") or bw_stats.get("photo") or "https://media.cricheroes.in/default/user_profile.png",
+                        "stats": bw_stats
                     },
                     "status": m.get("status", "upcoming")
                 }
