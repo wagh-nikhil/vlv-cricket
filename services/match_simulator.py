@@ -268,6 +268,7 @@ class MatchSimulator:
             "team_a": self.team_a,
             "team_b": self.team_b,
             "batting_team": self.team_a,
+            "bowling_team": self.team_b,
             "runs": self.runs,
             "wickets": self.wickets,
             "overs": overs_str,

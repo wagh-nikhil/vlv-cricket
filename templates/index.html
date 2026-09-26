@@ -132,6 +132,51 @@
         </div>
       </div>
 
+      <!-- PRISM CAMERA TICKER PRESETS & OVERLAY SELECTOR -->
+      <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800 shadow-md flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20">
+            <i data-lucide="tv" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-slate-200">PRISM Camera Ticker (3 Themes Available)</div>
+            <div class="text-[11px] text-slate-400">Choose your preferred stream layout and transparency.</div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Preset 1: Classic Glass -->
+          <div class="flex items-center bg-slate-950 border border-slate-800 rounded-lg p-1 text-xs">
+            <a href="/ticker?theme=glass&opacity=medium" target="_blank" class="px-2.5 py-1 text-slate-200 hover:text-blue-400 font-semibold flex items-center gap-1 transition">
+              <span>💎 Classic Glass</span>
+            </a>
+            <button onclick="copyOverlayUrl('glass', 'medium')" title="Copy URL for PRISM" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded font-bold transition">
+              📋
+            </button>
+          </div>
+
+          <!-- Preset 2: Ultra-Clear Minimal -->
+          <div class="flex items-center bg-slate-950 border border-emerald-500/30 rounded-lg p-1 text-xs">
+            <a href="/ticker?theme=minimal&opacity=high" target="_blank" class="px-2.5 py-1 text-emerald-300 hover:text-emerald-200 font-semibold flex items-center gap-1 transition">
+              <span>🍃 Ultra-Clear Minimal</span>
+            </a>
+            <button onclick="copyOverlayUrl('minimal', 'high')" title="Copy URL for PRISM" class="px-2 py-1 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 rounded font-bold transition">
+              📋
+            </button>
+          </div>
+
+          <!-- Preset 3: IPL Neon -->
+          <div class="flex items-center bg-slate-950 border border-cyan-500/30 rounded-lg p-1 text-xs">
+            <a href="/ticker?theme=neon&opacity=medium" target="_blank" class="px-2.5 py-1 text-cyan-300 hover:text-cyan-200 font-semibold flex items-center gap-1 transition">
+              <span>⚡ IPL Neon</span>
+            </a>
+            <button onclick="copyOverlayUrl('neon', 'medium')" title="Copy URL for PRISM" class="px-2 py-1 bg-cyan-950 hover:bg-cyan-900 text-cyan-300 rounded font-bold transition">
+              📋
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- SIMULATION CONTROLS BAR (Only visible if in simulation mode) -->
       <div id="sim-banner" class="hidden bg-gradient-to-r from-purple-950/40 via-indigo-950/40 to-slate-900 p-4 rounded-xl border border-purple-500/30 flex flex-wrap items-center justify-between gap-4">
         <div class="flex items-center gap-3">

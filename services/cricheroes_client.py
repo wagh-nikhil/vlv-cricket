@@ -246,9 +246,11 @@ class CricHeroesClient:
             
             if current_inning == 2:
                 batting_team_name = team_b_name
+                bowling_team_name = team_a_name
                 current_team_obj = team_b_data
             else:
                 batting_team_name = team_a_name
+                bowling_team_name = team_b_name
                 current_team_obj = team_a_data
 
             innings_list = current_team_obj.get("innings", [])
@@ -334,6 +336,7 @@ class CricHeroesClient:
                 "team_a": team_a_name,
                 "team_b": team_b_name,
                 "batting_team": batting_team_name,
+                "bowling_team": bowling_team_name,
                 "runs": runs,
                 "wickets": wickets,
                 "overs": overs,
@@ -433,6 +436,7 @@ class CricHeroesClient:
                     "team_a": m.get("team_a", "Team A"),
                     "team_b": m.get("team_b", "Team B"),
                     "batting_team": m.get("team_a", "Team A"),
+                    "bowling_team": m.get("team_b", "Team B"),
                     "runs": 0,
                     "wickets": 0,
                     "overs": "0.0",

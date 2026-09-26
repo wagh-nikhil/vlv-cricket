@@ -551,3 +551,19 @@ async function saveSettings(e) {
     alert("Failed to save settings: " + err);
   }
 }
+
+// PRISM Overlay URL Copier
+function copyOverlayUrl(theme, opacity) {
+  const origin = window.location.origin;
+  const url = `${origin}/ticker?theme=${theme}&opacity=${opacity}&stream=1`;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => {
+      alert(`Copied PRISM URL:\n${url}\n\nPaste this in PRISM Live Studio Web widget!`);
+    }).catch(() => {
+      prompt("Copy PRISM URL:", url);
+    });
+  } else {
+    prompt("Copy PRISM URL:", url);
+  }
+}
+

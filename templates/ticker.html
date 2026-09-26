@@ -6,10 +6,10 @@
   <title>PRISM Live Cricket Overlay - VLV 2026</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Inter & Roboto Mono -->
+  <!-- Google Fonts: Inter, Chakra Petch & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;0,800;1,700&family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;0,800;1,700&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
   
   <style>
     * {
@@ -32,17 +32,100 @@
       font-family: 'JetBrains Mono', monospace;
     }
 
-    /* Glassmorphism TV Broadcast Bar */
-    .tv-glass {
-      background: linear-gradient(135deg, rgba(10, 15, 30, 0.94) 0%, rgba(15, 23, 42, 0.90) 100%);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.12);
+    /* CSS Theme & Transparency Variables */
+    :root {
+      --ticker-blur: 16px;
+      --glass-alpha: 0.60;
+      --minimal-alpha: 0.38;
+      --neon-alpha: 0.65;
+      --card-bg: rgba(15, 23, 42, 0.60);
+      --header-bg: rgba(10, 15, 30, 0.75);
+      --border-color: rgba(255, 255, 255, 0.12);
     }
 
-    .tv-score-box {
-      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 4px 12px rgba(0,0,0,0.4);
+    /* Transparency Level Presets */
+    body.op-high {
+      --glass-alpha: 0.38;
+      --minimal-alpha: 0.25;
+      --neon-alpha: 0.42;
+      --card-bg: rgba(10, 15, 30, 0.38);
+      --header-bg: rgba(6, 10, 20, 0.48);
+      --border-color: rgba(255, 255, 255, 0.16);
+    }
+    body.op-medium {
+      --glass-alpha: 0.62;
+      --minimal-alpha: 0.42;
+      --neon-alpha: 0.65;
+      --card-bg: rgba(15, 23, 42, 0.62);
+      --header-bg: rgba(10, 15, 30, 0.72);
+      --border-color: rgba(255, 255, 255, 0.12);
+    }
+    body.op-solid {
+      --glass-alpha: 0.88;
+      --minimal-alpha: 0.78;
+      --neon-alpha: 0.88;
+      --card-bg: rgba(15, 23, 42, 0.88);
+      --header-bg: rgba(10, 15, 30, 0.94);
+      --border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    /* ======================================================== */
+    /* THEME 1: CLASSIC GLASS (Star Sports Pro)                 */
+    /* ======================================================== */
+    body.theme-glass .ticker-card {
+      background: linear-gradient(135deg, rgba(10, 15, 30, var(--glass-alpha)) 0%, rgba(15, 23, 42, calc(var(--glass-alpha) * 0.95)) 100%);
+      backdrop-filter: blur(var(--ticker-blur));
+      -webkit-backdrop-filter: blur(var(--ticker-blur));
+      border: 1px solid var(--border-color);
+      box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+    body.theme-glass .ticker-header {
+      background: rgba(8, 12, 24, calc(var(--glass-alpha) * 1.15));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: none;
+    }
+
+    /* ======================================================== */
+    /* THEME 2: ULTRA-CLEAR MINIMAL (Low-profile Streamer Pill) */
+    /* ======================================================== */
+    body.theme-minimal .ticker-card {
+      background: rgba(3, 7, 18, var(--minimal-alpha));
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 1.25rem !important;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+    body.theme-minimal .ticker-header {
+      display: none !important; /* Single-tier compact bar saves 40% vertical space on camera! */
+    }
+    body.theme-minimal .minimal-tag {
+      display: inline-flex !important;
+    }
+
+    /* ======================================================== */
+    /* THEME 3: IPL DYNAMIC NEON (Electric Stadium)             */
+    /* ======================================================== */
+    body.theme-neon .ticker-card {
+      background: linear-gradient(135deg, rgba(13, 17, 34, var(--neon-alpha)) 0%, rgba(7, 10, 22, var(--neon-alpha)) 100%);
+      backdrop-filter: blur(var(--ticker-blur));
+      -webkit-backdrop-filter: blur(var(--ticker-blur));
+      border: 1px solid rgba(6, 182, 212, 0.4);
+      border-bottom: 3px solid #06b6d4;
+      box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.7), 0 0 20px rgba(6, 182, 212, 0.25);
+    }
+    body.theme-neon .ticker-header {
+      background: linear-gradient(90deg, rgba(6, 182, 212, 0.3) 0%, rgba(15, 23, 42, calc(var(--neon-alpha) * 1.1)) 100%);
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      border-bottom: none;
+    }
+    body.theme-neon .team-badge-neon {
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.4);
+      border-color: #06b6d4 !important;
+    }
+    body.theme-neon .score-neon {
+      color: #38bdf8 !important;
+      text-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
     }
 
     /* Celebration Banner Animation */
@@ -65,20 +148,55 @@
     .pulse-live {
       animation: pulse-red 1.4s infinite ease-in-out;
     }
-
-    /* Marquee ticker animation if needed */
-    @keyframes tickerScroll {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
   </style>
 </head>
-<body class="relative flex flex-col justify-end p-4 sm:p-6 pb-16 sm:pb-20 select-none">
+<body class="theme-glass op-medium relative flex flex-col justify-end p-3 sm:p-5 pb-16 sm:pb-20 select-none">
+
+  <!-- ======================================================== -->
+  <!-- FLOATING THEME & TRANSPARENCY DOCK (Interactive Switcher)-->
+  <!-- ======================================================== -->
+  <div id="overlay-control-dock" class="fixed top-3 left-1/2 -translate-x-1/2 z-50 flex flex-wrap items-center justify-center gap-2 p-1.5 bg-slate-950/85 backdrop-blur-md rounded-2xl border border-slate-700/80 shadow-2xl text-xs transition-all duration-300">
+    <!-- Themes -->
+    <div class="flex items-center bg-slate-900/90 rounded-xl p-0.5 border border-slate-800">
+      <button onclick="setTheme('glass')" id="btn-theme-glass" class="px-2.5 py-1 rounded-lg font-bold text-[11px] transition text-white bg-blue-600 shadow">
+        💎 Classic Glass
+      </button>
+      <button onclick="setTheme('minimal')" id="btn-theme-minimal" class="px-2.5 py-1 rounded-lg font-bold text-[11px] transition text-slate-400 hover:text-white">
+        🍃 Ultra-Clear
+      </button>
+      <button onclick="setTheme('neon')" id="btn-theme-neon" class="px-2.5 py-1 rounded-lg font-bold text-[11px] transition text-slate-400 hover:text-white">
+        ⚡ IPL Neon
+      </button>
+    </div>
+
+    <!-- Opacity Presets -->
+    <div class="flex items-center bg-slate-900/90 rounded-xl p-0.5 border border-slate-800">
+      <button onclick="setTransparency('high')" id="btn-op-high" class="px-2 py-1 rounded-lg font-bold text-[10px] transition text-slate-400 hover:text-white">
+        💧 40% Clear
+      </button>
+      <button onclick="setTransparency('medium')" id="btn-op-medium" class="px-2 py-1 rounded-lg font-bold text-[10px] transition text-white bg-slate-700 shadow">
+        ⛅ 60% Balanced
+      </button>
+      <button onclick="setTransparency('solid')" id="btn-op-solid" class="px-2 py-1 rounded-lg font-bold text-[10px] transition text-slate-400 hover:text-white">
+        🌑 85% Solid
+      </button>
+    </div>
+
+    <!-- Copy PRISM URL -->
+    <button onclick="copyPrismUrl()" id="btn-copy-url" title="Copy current URL for PRISM Live Studio" class="px-2.5 py-1 rounded-lg font-bold text-[11px] bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1 transition shadow">
+      <span>📋 Copy URL</span>
+    </button>
+
+    <!-- Hide Dock Button -->
+    <button onclick="toggleDock(false)" title="Hide controls (Move mouse or press 'H' to show again)" class="px-2 py-1 rounded-lg text-slate-400 hover:text-white text-[11px] font-bold">
+      ✕
+    </button>
+  </div>
 
   <!-- ======================================================== -->
   <!-- POPUP CELEBRATION OVERLAY (Boundaries & Wickets)          -->
   <!-- ======================================================== -->
-  <div id="celebration-container" class="fixed top-12 left-1/2 -translate-x-1/2 pointer-events-none z-50 hidden">
+  <div id="celebration-container" class="fixed top-14 left-1/2 -translate-x-1/2 pointer-events-none z-50 hidden">
     <div id="celebration-card" class="px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border text-white font-black text-2xl sm:text-3xl tracking-wider uppercase font-chakra">
       <span id="celebration-icon" class="text-4xl">🏏</span>
       <span id="celebration-text">FOUR!</span>
@@ -89,10 +207,9 @@
   <!-- BROADCAST PLAYER SPOTLIGHT POPUP (Bowler / Batsman Intro)-->
   <!-- ======================================================== -->
   <div id="player-spotlight-card" class="w-full max-w-7xl mx-auto mb-2 transition-all duration-500 ease-out transform translate-y-6 opacity-0 pointer-events-none hidden">
-    <div class="tv-glass rounded-xl border border-blue-500/60 p-2.5 sm:p-3 shadow-2xl flex items-center justify-between gap-3 text-white backdrop-blur-xl">
+    <div class="ticker-card rounded-2xl p-2.5 sm:p-3.5 shadow-2xl flex items-center justify-between gap-3 text-white backdrop-blur-xl">
       <!-- Player Avatar + Badge + Name & Role -->
       <div class="flex items-center gap-3 min-w-0">
-        <!-- Photo with glow -->
         <div class="relative shrink-0">
           <img id="spotlight-photo" src="https://media.cricheroes.in/default/user_profile.png" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.6)] bg-slate-900" onerror="this.src='https://media.cricheroes.in/default/user_profile.png'">
           <span id="spotlight-badge" class="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-rose-600 text-white border border-rose-400 shadow">
@@ -100,7 +217,6 @@
           </span>
         </div>
 
-        <!-- Name & Style -->
         <div class="truncate">
           <div class="flex items-center gap-2">
             <span id="spotlight-title" class="text-[10px] font-bold tracking-wider uppercase text-blue-400 font-chakra">⚡ NEW BOWLER INTO THE ATTACK</span>
@@ -115,7 +231,7 @@
       </div>
 
       <!-- Career Statistics Grid -->
-      <div id="spotlight-stats" class="flex items-center gap-3 sm:gap-5 bg-slate-950/80 border border-slate-700/60 rounded-xl px-3 py-1.5 sm:px-4 sm:py-2 shrink-0 font-chakra shadow-inner">
+      <div id="spotlight-stats" class="flex items-center gap-3 sm:gap-5 bg-slate-950/70 border border-slate-700/60 rounded-xl px-3 py-1.5 sm:px-4 sm:py-2 shrink-0 font-chakra shadow-inner">
         <div class="text-center min-w-[45px]">
           <div class="text-[9px] sm:text-[10px] text-slate-400 uppercase font-sans">Matches</div>
           <div id="stat-matches" class="text-sm sm:text-base font-black text-amber-400 font-mono-score">27</div>
@@ -140,7 +256,7 @@
   <div id="ticker-wrapper" class="w-full max-w-7xl mx-auto transition-all duration-300">
 
     <!-- TOP ACCENT STRIP: Tournament Name & Target Equation -->
-    <div class="flex items-center justify-between px-4 py-1.5 rounded-t-xl bg-slate-950/90 border-t border-x border-slate-700/60 text-xs shadow-md">
+    <div class="ticker-header flex items-center justify-between px-4 py-1.5 rounded-t-2xl text-xs shadow-md transition-all duration-300">
       <div class="flex items-center gap-2">
         <span class="w-2.5 h-2.5 rounded-full bg-red-500 pulse-live shadow-[0_0_8px_#ef4444]"></span>
         <span class="font-extrabold text-[11px] tracking-wider text-red-400 uppercase">LIVE</span>
@@ -159,55 +275,65 @@
     </div>
 
     <!-- MAIN TICKER BODY -->
-    <div class="tv-glass rounded-b-xl border border-slate-700/60 p-3 sm:p-4 text-white">
+    <div class="ticker-card rounded-b-2xl p-3 sm:p-4 text-white transition-all duration-300">
       <div class="grid grid-cols-12 gap-3 sm:gap-4 items-center">
 
         <!-- SECTION 1: TEAMS & BIG SCORE (Cols 1-4) -->
-        <div class="col-span-12 md:col-span-4 flex items-center gap-3 border-b md:border-b-0 md:border-r border-slate-800 pb-2 md:pb-0 md:pr-4">
-          <!-- Batting Indicator Pill -->
-          <div class="flex flex-col items-center justify-center px-3 py-2 rounded-xl bg-blue-600/30 border border-blue-500/50 text-blue-300 font-bold text-xs uppercase tracking-tight">
-            <span class="text-[9px] text-blue-400 font-normal">BATTING</span>
-            <span id="batting-team-short" class="text-sm font-black truncate max-w-[85px]">
-              {{ current_match.batting_team or "TEAM A" }}
-            </span>
+        <div class="col-span-12 md:col-span-5 lg:col-span-4 flex items-center gap-3 border-b md:border-b-0 md:border-r border-slate-700/50 pb-2.5 md:pb-0 md:pr-4">
+          <!-- Team Duel Box (Prominent display, no tight cutoffs) -->
+          <div class="flex flex-col justify-center min-w-0 max-w-[170px] sm:max-w-[210px]">
+            <!-- Batting Team Pill -->
+            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-gradient-to-r from-blue-600/40 to-indigo-600/30 border border-blue-400/50 text-white shadow-sm team-badge-neon">
+              <span class="text-xs text-amber-400 font-bold shrink-0">🏏</span>
+              <span id="batting-team-name" class="text-xs sm:text-sm font-black text-white uppercase tracking-tight truncate leading-tight drop-shadow" title="Batting Team">
+                {{ current_match.batting_team or current_match.team_a or "BATTING TEAM" }}
+              </span>
+            </div>
+            <!-- Bowling Team / Matchup Tag -->
+            <div class="flex items-center gap-1.5 mt-1 px-1 text-[11px] font-bold text-slate-300 truncate">
+              <span class="text-[9px] uppercase tracking-wider text-slate-400 font-extrabold">vs</span>
+              <span id="bowling-team-name" class="truncate text-slate-200 font-bold drop-shadow-sm">
+                {{ current_match.bowling_team or current_match.team_b or "BOWLING TEAM" }}
+              </span>
+            </div>
           </div>
 
           <!-- Score Display -->
-          <div class="flex-1">
+          <div class="flex-1 shrink-0">
             <div class="flex items-baseline gap-2">
-              <span id="score-text" class="text-4xl sm:text-5xl font-black text-amber-400 tracking-tighter font-mono-score drop-shadow-md">
+              <span id="score-text" class="text-3xl sm:text-4xl md:text-5xl font-black text-amber-400 tracking-tighter font-mono-score drop-shadow-md score-neon">
                 {{ current_match.runs if current_match.runs is not none else 0 }}/{{ current_match.wickets if current_match.wickets is not none else 0 }}
               </span>
-              <span id="overs-text" class="text-base sm:text-xl font-bold text-slate-300">
+              <span id="overs-text" class="text-xs sm:text-sm md:text-base font-bold text-slate-200 drop-shadow">
                 ({{ current_match.overs or "0.0" }}/{{ current_match.overs_limit or 8 }} ov)
               </span>
             </div>
-            <div class="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
-              <span>CRR: <b id="crr-text" class="text-slate-200 font-semibold">{{ current_match.crr or "0.00" }}</b></span>
+            <div class="text-[10px] sm:text-[11px] text-slate-300 flex items-center gap-1.5 mt-0.5 whitespace-nowrap drop-shadow">
+              <span>CRR: <b id="crr-text" class="text-white font-extrabold">{{ current_match.crr or "0.00" }}</b></span>
               <span>•</span>
-              <span>Target: <b id="target-text" class="text-slate-200 font-semibold">{{ current_match.target or "-" }}</b></span>
+              <span>Tgt: <b id="target-text" class="text-white font-extrabold">{{ current_match.target or "-" }}</b></span>
               <span>•</span>
-              <span>RRR: <b id="rrr-text" class="text-slate-200 font-semibold">{{ current_match.rrr or "-" }}</b></span>
+              <span>RRR: <b id="rrr-text" class="text-white font-extrabold">{{ current_match.rrr or "-" }}</b></span>
             </div>
           </div>
         </div>
 
         <!-- SECTION 2: BATTERS AT CREASE (Cols 5-8) -->
-        <div class="col-span-12 sm:col-span-6 md:col-span-4 border-b sm:border-b-0 sm:border-r border-slate-800 pb-2 sm:pb-0 sm:pr-4 space-y-1.5">
+        <div class="col-span-12 sm:col-span-6 md:col-span-4 border-b sm:border-b-0 sm:border-r border-slate-700/50 pb-2.5 sm:pb-0 sm:pr-4 space-y-1.5">
           <!-- Striker -->
           <div class="flex items-center justify-between text-xs">
             <div class="flex items-center gap-2 truncate">
-              <img id="batter1-photo" src="{{ current_match.batters[0].photo if current_match.batters and current_match.batters|length > 0 and current_match.batters[0].photo else 'https://media.cricheroes.in/default/user_profile.png' }}" class="w-6 h-6 rounded-full object-cover border border-slate-700 shrink-0 bg-slate-800" onerror="this.src='https://media.cricheroes.in/default/user_profile.png'">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
-              <span id="batter1-name" class="font-bold text-slate-100 truncate max-w-[110px]">
+              <img id="batter1-photo" src="{{ current_match.batters[0].photo if current_match.batters and current_match.batters|length > 0 and current_match.batters[0].photo else 'https://media.cricheroes.in/default/user_profile.png' }}" class="w-7 h-7 rounded-full object-cover border border-amber-400/60 shadow shrink-0 bg-slate-800" onerror="this.src='https://media.cricheroes.in/default/user_profile.png'">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0 shadow-[0_0_6px_#34d399] animate-pulse" title="On Strike"></span>
+              <span id="batter1-name" class="font-bold text-white text-xs sm:text-sm truncate max-w-[125px] drop-shadow-sm">
                 {{ current_match.batters[0].name if current_match.batters and current_match.batters|length > 0 else "Batter 1*" }}
               </span>
             </div>
-            <div class="text-right">
-              <span id="batter1-runs" class="font-black text-amber-300 font-mono-score">
+            <div class="text-right shrink-0">
+              <span id="batter1-runs" class="font-black text-amber-300 text-sm sm:text-base font-mono-score drop-shadow-sm">
                 {{ current_match.batters[0].runs if current_match.batters and current_match.batters|length > 0 else 0 }}
               </span>
-              <span id="batter1-balls" class="text-slate-400 text-[10px]">
+              <span id="batter1-balls" class="text-slate-300 text-[11px] font-medium">
                 ({{ current_match.batters[0].balls if current_match.batters and current_match.batters|length > 0 else 0 }})
               </span>
             </div>
@@ -216,17 +342,17 @@
           <!-- Non-Striker -->
           <div class="flex items-center justify-between text-xs">
             <div class="flex items-center gap-2 truncate">
-              <img id="batter2-photo" src="{{ current_match.batters[1].photo if current_match.batters and current_match.batters|length > 1 and current_match.batters[1].photo else 'https://media.cricheroes.in/default/user_profile.png' }}" class="w-6 h-6 rounded-full object-cover border border-slate-700 shrink-0 bg-slate-800" onerror="this.src='https://media.cricheroes.in/default/user_profile.png'">
-              <span class="w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0"></span>
-              <span id="batter2-name" class="font-semibold text-slate-300 truncate max-w-[110px]">
+              <img id="batter2-photo" src="{{ current_match.batters[1].photo if current_match.batters and current_match.batters|length > 1 and current_match.batters[1].photo else 'https://media.cricheroes.in/default/user_profile.png' }}" class="w-7 h-7 rounded-full object-cover border border-slate-600 shrink-0 bg-slate-800" onerror="this.src='https://media.cricheroes.in/default/user_profile.png'">
+              <span class="w-2 h-2 rounded-full bg-slate-500 shrink-0"></span>
+              <span id="batter2-name" class="font-semibold text-slate-200 text-xs sm:text-sm truncate max-w-[125px] drop-shadow-sm">
                 {{ current_match.batters[1].name if current_match.batters and current_match.batters|length > 1 else "Batter 2" }}
               </span>
             </div>
-            <div class="text-right">
-              <span id="batter2-runs" class="font-black text-slate-200 font-mono-score">
+            <div class="text-right shrink-0">
+              <span id="batter2-runs" class="font-black text-slate-100 text-sm sm:text-base font-mono-score drop-shadow-sm">
                 {{ current_match.batters[1].runs if current_match.batters and current_match.batters|length > 1 else 0 }}
               </span>
-              <span id="batter2-balls" class="text-slate-400 text-[10px]">
+              <span id="batter2-balls" class="text-slate-300 text-[11px] font-medium">
                 ({{ current_match.batters[1].balls if current_match.batters and current_match.batters|length > 1 else 0 }})
               </span>
             </div>
@@ -234,29 +360,29 @@
         </div>
 
         <!-- SECTION 3: BOWLER & THIS OVER BALLS (Cols 9-12) -->
-        <div class="col-span-12 sm:col-span-6 md:col-span-4 flex flex-col justify-between space-y-1.5">
+        <div class="col-span-12 sm:col-span-6 md:col-span-3 flex flex-col justify-between space-y-1.5">
           <!-- Bowler Figures -->
           <div class="flex items-center justify-between text-xs">
             <div class="flex items-center gap-2 truncate">
-              <img id="bowler-photo" src="{{ current_match.bowler.photo if current_match.bowler and current_match.bowler.photo else 'https://media.cricheroes.in/default/user_profile.png' }}" class="w-6 h-6 rounded-full object-cover border border-rose-500/50 shrink-0 bg-slate-800" onerror="this.src='https://media.cricheroes.in/default/user_profile.png'">
+              <img id="bowler-photo" src="{{ current_match.bowler.photo if current_match.bowler and current_match.bowler.photo else 'https://media.cricheroes.in/default/user_profile.png' }}" class="w-7 h-7 rounded-full object-cover border border-rose-500/60 shadow shrink-0 bg-slate-800" onerror="this.src='https://media.cricheroes.in/default/user_profile.png'">
               <span class="text-rose-400 font-bold">🎯</span>
-              <span id="bowler-name" class="font-bold text-slate-100 truncate max-w-[105px]">
+              <span id="bowler-name" class="font-bold text-white text-xs sm:text-sm truncate max-w-[115px] drop-shadow-sm">
                 {{ current_match.bowler.name if current_match.bowler else "Bowler" }}
               </span>
             </div>
-            <div class="text-right">
-              <span id="bowler-figures" class="font-extrabold text-rose-400 font-mono-score">
+            <div class="text-right shrink-0">
+              <span id="bowler-figures" class="font-extrabold text-rose-400 text-sm sm:text-base font-mono-score drop-shadow-sm">
                 {{ current_match.bowler.wickets if current_match.bowler else 0 }}-{{ current_match.bowler.runs if current_match.bowler else 0 }}
               </span>
-              <span id="bowler-overs" class="text-slate-400 text-[10px]">
+              <span id="bowler-overs" class="text-slate-300 text-[11px] font-medium">
                 ({{ current_match.bowler.overs if current_match.bowler else "0.0" }})
               </span>
             </div>
           </div>
 
-          <!-- Recent Over Deliveries Pill Strip -->
+          <!-- Recent Over Deliveries Strip -->
           <div class="flex items-center justify-between gap-1 pt-0.5">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight">THIS OVER</span>
+            <span class="text-[10px] font-bold text-slate-300 uppercase tracking-tight">THIS OVER</span>
             <div id="balls-strip" class="flex items-center gap-1.5">
               {% for b in current_match.recent_balls or ['1', '0', '4', '0', 'W', '6'] %}
               <span class="w-6 h-6 rounded-full text-[11px] font-extrabold flex items-center justify-center font-mono-score
@@ -264,7 +390,7 @@
                 {% elif b == '4' %}bg-emerald-600 text-white shadow-[0_0_8px_#059669]
                 {% elif b == '6' %}bg-purple-600 text-white shadow-[0_0_8px_#7c3aed]
                 {% elif 'wd' in b or 'nb' in b %}bg-amber-600 text-white
-                {% else %}bg-slate-800 text-slate-200 border border-slate-700{% endif %}">
+                {% else %}bg-slate-900/90 text-slate-200 border border-slate-700/80{% endif %}">
                 {{ b }}
               </span>
               {% endfor %}
@@ -276,17 +402,22 @@
     </div>
   </div>
 
-  <!-- Real-Time SSE Script -->
+  <!-- Real-Time SSE & Crease Tracking Script -->
   <script>
     let lastBallSignature = "";
     let eventSource = null;
+    let dockHideTimer = null;
 
-    // Check query params for custom styling & watermark clearance
+    // URL Parameters
     const urlParams = new URLSearchParams(window.location.search);
+    const themeParam = urlParams.get('theme') || localStorage.getItem('ticker_theme') || 'glass';
+    const opacityParam = urlParams.get('opacity') || localStorage.getItem('ticker_opacity') || 'medium';
+    const isStreamMode = urlParams.get('stream') === '1' || urlParams.get('clean') === '1';
     const pos = urlParams.get('pos');
     const bottomParam = urlParams.get('bottom') || urlParams.get('lift');
     const rightParam = urlParams.get('right') || urlParams.get('safe_right');
 
+    // Apply Positioning
     if (pos === 'top') {
       document.body.classList.remove('justify-end', 'pb-16', 'pb-20');
       document.body.classList.add('justify-start', 'pt-4', 'sm:pt-6');
@@ -297,11 +428,106 @@
 
     if (rightParam) {
       const wrapper = document.getElementById("ticker-wrapper");
-      if (wrapper) {
-        wrapper.style.paddingRight = `${rightParam}px`;
+      if (wrapper) wrapper.style.paddingRight = `${rightParam}px`;
+    }
+
+    // ==========================================
+    // THEME & TRANSPARENCY SWITCHER FUNCTIONS
+    // ==========================================
+    function setTheme(theme) {
+      document.body.classList.remove('theme-glass', 'theme-minimal', 'theme-neon');
+      document.body.classList.add(`theme-${theme}`);
+      localStorage.setItem('ticker_theme', theme);
+
+      // Update button active styles
+      ['glass', 'minimal', 'neon'].forEach(t => {
+        const btn = document.getElementById(`btn-theme-${t}`);
+        if (btn) {
+          if (t === theme) {
+            btn.className = "px-2.5 py-1 rounded-lg font-bold text-[11px] transition text-white bg-blue-600 shadow";
+          } else {
+            btn.className = "px-2.5 py-1 rounded-lg font-bold text-[11px] transition text-slate-400 hover:text-white";
+          }
+        }
+      });
+    }
+
+    function setTransparency(level) {
+      document.body.classList.remove('op-high', 'op-medium', 'op-solid');
+      document.body.classList.add(`op-${level}`);
+      localStorage.setItem('ticker_opacity', level);
+
+      // Update button active styles
+      ['high', 'medium', 'solid'].forEach(l => {
+        const btn = document.getElementById(`btn-op-${l}`);
+        if (btn) {
+          if (l === level) {
+            btn.className = "px-2 py-1 rounded-lg font-bold text-[10px] transition text-white bg-slate-700 shadow";
+          } else {
+            btn.className = "px-2 py-1 rounded-lg font-bold text-[10px] transition text-slate-400 hover:text-white";
+          }
+        }
+      });
+    }
+
+    function copyPrismUrl() {
+      const activeTheme = localStorage.getItem('ticker_theme') || 'glass';
+      const activeOp = localStorage.getItem('ticker_opacity') || 'medium';
+      const cleanUrl = `${window.location.origin}/ticker?theme=${activeTheme}&opacity=${activeOp}&stream=1`;
+      
+      navigator.clipboard.writeText(cleanUrl).then(() => {
+        const btn = document.getElementById('btn-copy-url');
+        if (btn) {
+          const original = btn.innerHTML;
+          btn.innerHTML = '<span>✅ Copied!</span>';
+          btn.classList.add('bg-blue-600');
+          setTimeout(() => {
+            btn.innerHTML = original;
+            btn.classList.remove('bg-blue-600');
+          }, 2000);
+        }
+      });
+    }
+
+    function toggleDock(show) {
+      const dock = document.getElementById('overlay-control-dock');
+      if (!dock) return;
+      if (show) {
+        dock.classList.remove('opacity-0', 'pointer-events-none');
+      } else {
+        dock.classList.add('opacity-0', 'pointer-events-none');
       }
     }
 
+    // Auto-hide control dock for clean stream view
+    if (isStreamMode) {
+      toggleDock(false);
+    } else {
+      const resetDockTimer = () => {
+        toggleDock(true);
+        if (dockHideTimer) clearTimeout(dockHideTimer);
+        dockHideTimer = setTimeout(() => {
+          toggleDock(false);
+        }, 5000);
+      };
+      window.addEventListener('mousemove', resetDockTimer);
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'h' || e.key === 'H') {
+          const dock = document.getElementById('overlay-control-dock');
+          const isHidden = dock.classList.contains('opacity-0');
+          toggleDock(isHidden);
+        }
+      });
+      resetDockTimer();
+    }
+
+    // Initial theme and opacity apply
+    setTheme(themeParam);
+    setTransparency(opacityParam);
+
+    // ==========================================
+    // CELEBRATION OVERLAY TRIGGER
+    // ==========================================
     function triggerCelebration(type, label, icon, bgClass) {
       const container = document.getElementById("celebration-container");
       const card = document.getElementById("celebration-card");
@@ -319,6 +545,9 @@
       }, 3500);
     }
 
+    // ==========================================
+    // CREASE & BOWLER TRACKING ENGINE
+    // ==========================================
     let currentMatchId = null;
     let activeCreaseBatters = [];
     let isInitialBatterLoad = true;
@@ -427,6 +656,9 @@
       }, 8500);
     }
 
+    // ==========================================
+    // REAL-TIME TICKER UI UPDATER
+    // ==========================================
     function updateTickerUI(match) {
       if (!match || match.status === "idle") return;
 
@@ -441,9 +673,17 @@
           isInitialBowlerLoad = true;
         }
 
-        // Teams & Scores
-        const batting = match.batting_team || match.team_a || "Batting";
-        document.getElementById("batting-team-short").textContent = batting;
+        // Teams Display (Prominent & Full visibility)
+        const batting = match.batting_team || match.team_a || "Batting Team";
+        const bowling = match.bowling_team || match.team_b || "Bowling Team";
+
+        const batEl = document.getElementById("batting-team-name");
+        if (batEl) batEl.textContent = batting;
+
+        const bowlEl = document.getElementById("bowling-team-name");
+        if (bowlEl) bowlEl.textContent = bowling;
+
+        // Big Score
         document.getElementById("score-text").textContent = `${match.runs ?? 0}/${match.wickets ?? 0}`;
         document.getElementById("overs-text").textContent = `(${match.overs || "0.0"}/${match.overs_limit || 8} ov)`;
         
@@ -491,11 +731,9 @@
           // Crease Spotlight Detection
           const validBatters = match.batters.filter(b => b && normalizePlayerName(b.name));
           if (isInitialBatterLoad) {
-            // First load or match switch: both batters are already on the pitch, suppress popup
             activeCreaseBatters = [...validBatters];
             isInitialBatterLoad = false;
           } else {
-            // Detect strictly the incoming batter who was NOT at the crease
             const incoming = validBatters.filter(curr => {
               const wasAtCrease = activeCreaseBatters.some(prev => isSamePlayer(curr, prev));
               return !wasAtCrease;
@@ -548,7 +786,7 @@
             } else if (bStr.includes("wd") || bStr.includes("nb")) {
               span.className += " bg-amber-600 text-white";
             } else {
-              span.className += " bg-slate-800 text-slate-200 border border-slate-700";
+              span.className += " bg-slate-900/90 text-slate-200 border border-slate-700/80";
             }
             span.textContent = bStr;
             ballsStrip.appendChild(span);
@@ -574,6 +812,9 @@
       }
     }
 
+    // ==========================================
+    // SSE STREAM & POLLING FALLBACK
+    // ==========================================
     function initSSE() {
       if (eventSource) eventSource.close();
       eventSource = new EventSource("/api/live/stream");
@@ -591,7 +832,6 @@
       };
     }
 
-    // Fallback heartbeat polling every 3 seconds to guarantee updates over mobile/Cloudflare tunnels
     function pollState() {
       fetch("/api/state")
         .then(res => res.json())
